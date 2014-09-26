@@ -6,7 +6,7 @@ from seafileapi.exceptions import DoesNotExist
 from tests.base import SeafileApiTestCase
 from tests.utils import randstring
 
-class ReposTestCase(SeafileApiTestCase):
+class ReposTest(SeafileApiTestCase):
     def test_create_delete_repo(self):
         repo = self._create_repo()
         repo.delete()
@@ -30,6 +30,7 @@ class ReposTestCase(SeafileApiTestCase):
         self.assertEqual(repo.desc, repo_desc)
         self.assertHasLen(repo.id, 36)
         self.assertEqual(repo.encrypted, password != None)
+        self.assertEqual(repo.owner, 'self')
 
         return repo
 
