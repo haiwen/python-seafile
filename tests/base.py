@@ -26,6 +26,9 @@ class SeafileApiTestCase(unittest.TestCase):
         msg = 'Expected length is %s, but actual lenght is %s' % (expected_length, actuallen)
         self.assertEqual(actuallen, expected_length, msg)
 
+    def assertEmpty(self, obj):
+        self.assertHasLen(obj, 0)
+
     @contextmanager
     def create_tmp_repo(self):
         repos = self.client.repos

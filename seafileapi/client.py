@@ -26,7 +26,7 @@ class SeafileApiClient(object):
         url = urljoin(self.server, '/api2/auth-token/')
         res = requests.post(url, data=data)
         if res.status_code != 200:
-            raise ClientHttpError(res.status_code, res.data)
+            raise ClientHttpError(res.status_code, res.content)
         token = res.json()['token']
         assert len(token) == 40, 'The length of seahub api auth token should be 40'
         self._token = token

@@ -1,4 +1,7 @@
+import io
+import os
 import posixpath
+import re
 from seafileapi.utils import querystr, utf8lize
 
 ZERO_OBJ_ID = '0000000000000000000000000000000000000000'
@@ -22,6 +25,10 @@ class _SeafDirentBase(object):
         self.path = path
         self.id = object_id
         self.size = size
+
+    @property
+    def name(self):
+        return posixpath.basename(self.path)
 
     def list_revisions(self):
         pass
@@ -91,11 +98,39 @@ class SeafDir(_SeafDirentBase):
     def upload(self, fileobj, filename):
         """Upload a file to this folder.
 
+        :param:fileobj :class:`File` like object
+        :param:filename The name of the file
+
         Return a :class:`SeafFile` object of the newly uploaded file.
         """
-        pass
+        if isinstance(fileobj, str):
+            fileobj = io.BytesIO(fileobj)
+        upload_url = self._get_upload_link()
+        files = {
+            'file': (filename, fileobj),
+            'parent_dir': self.path,
+        }
+        self.client.post(upload_url, files=files)
+        return self.repo.get_file(posixpath.join(self.path, filename))
 
-    def get_upload_link(self):
+    def upload_local_file(self, filepath, name=None):
+        """Upload a file to this folder.
+
+        :param:filepath The path to the local file
+        :param:name The name of this new file. If None, the name of the local file would be used.
+
+        Return a :class:`SeafFile` object of the newly uploaded file.
+        """
+        name = name or os.path.basename(filepath)
+        with open(filepath, 'r') as fp:
+            return self.upload(fp, name)
+
+    def _get_upload_link(self):
+        url = '/api2/repos/%s/upload-link/' % self.repo.id
+        resp = self.client.get(url)
+        return re.match(r'"(.*)"', resp.text).group(1)
+
+    def get_uploadable_sharelink(self):
         """Generate a uploadable shared link to this dir.
 
         Return the url of this link.
@@ -117,8 +152,30 @@ class SeafDir(_SeafDirentBase):
         else:
             return SeafDir(self.repo, path, dirent_json['id'], 0)
 
+    def __str__(self):
+        return 'SeafDir[repo=%s,path=%s,entries=%s]' % \
+            (self.repo.id[:6], self.path, len(self.entries))
+
+    __repr__ = __str__
+
 class SeafFile(_SeafDirentBase):
     isdir = False
     def update(self, fileobj):
         """Update the content of this file"""
         pass
+
+    def __str__(self):
+        return 'SeafFile[repo=%s,path=%s,size=%s]' % \
+            (self.repo.id[:6], self.path, self.size)
+
+    def _get_download_link(self):
+        url = '/api2/repos/%s/file/' % self.repo.id + querystr(p=self.path)
+        resp = self.client.get(url)
+        return re.match(r'"(.*)"', resp.text).group(1)
+
+    def get_content(self):
+        """Get the content of the file"""
+        url = self._get_download_link()
+        return self.client.get(url).content
+
+    __repr__ = __str__
