@@ -12,9 +12,7 @@ class SeafileApiClient(object):
         self.username = username
         self.password = password
         # FIXME: filter valid kwargs
-        self.request_kwargs = (request_kwargs
-                               if request_kwargs is not None
-                               else {})
+        self.request_kwargs = request_kwargs or {}
         self._token = None
 
         self.repos = Repos(self)
