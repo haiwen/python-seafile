@@ -5,12 +5,15 @@ from seafileapi.repos import Repos
 
 class SeafileApiClient(object):
     """Wraps seafile web api"""
-    def __init__(self, server, username, password):
+    def __init__(self, server, username, password, **kwargs):
         """Wraps various basic operations to interact with seahub http api.
         """
         self.server = server
         self.username = username
         self.password = password
+        # FIXME: filter valid kwargs
+        self.request_kwargs = kwargs
+        
         self._token = None
 
         self.repos = Repos(self)
@@ -24,7 +27,7 @@ class SeafileApiClient(object):
             'password': self.password,
         }
         url = urljoin(self.server, '/api2/auth-token/')
-        res = requests.post(url, data=data)
+        res = requests.post(url, data=data, **self.request_kwargs)
         if res.status_code != 200:
             raise ClientHttpError(res.status_code, res.content)
         token = res.json()['token']
@@ -46,17 +49,20 @@ class SeafileApiClient(object):
         return self._send_request('delete', *args, **kwargs)
 
     def _send_request(self, method, url, *args, **kwargs):
+        keyword_args = self.request_kwargs.copy()
+        keyword_args.update(kwargs)
+        
         if not url.startswith('http'):
             url = urljoin(self.server, url)
 
-        headers = kwargs.get('headers', {})
+        headers = keyword_args.get('headers', {})
         headers.setdefault('Authorization', 'Token ' + self._token)
-        kwargs['headers'] = headers
+        keyword_args['headers'] = headers
 
-        expected = kwargs.pop('expected', 200)
+        expected = keyword_args.pop('expected', 200)
         if not hasattr(expected, '__iter__'):
             expected = (expected, )
-        resp = requests.request(method, url, *args, **kwargs)
+        resp = requests.request(method, url, *args, **keyword_args)
         if resp.status_code not in expected:
             msg = 'Expected %s, but get %s' % \
                   (' or '.join(map(str, expected)), resp.status_code)
