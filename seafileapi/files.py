@@ -152,9 +152,15 @@ class SeafDir(_SeafDirentBase):
         else:
             return SeafDir(self.repo, path, dirent_json['id'], 0)
 
+    @property
+    def num_entries(self):
+        if self.entries is None:
+            self.load_entries()
+        return len(self.entries) if self.entries is not None else 0
+    
     def __str__(self):
         return 'SeafDir[repo=%s,path=%s,entries=%s]' % \
-            (self.repo.id[:6], self.path, len(self.entries))
+            (self.repo.id[:6], self.path, self.num_entries)
 
     __repr__ = __str__
 
