@@ -17,9 +17,7 @@ def _create_client():
 
 class SeafileApiTestCase(unittest.TestCase):
     """Base class for all python-seafile test cases"""
-    @classmethod
-    def setupClass(cls):
-        cls.client = _create_client()
+    client = _create_client()
 
     def assertHasLen(self, obj, expected_length):
         actuallen = len(obj)
