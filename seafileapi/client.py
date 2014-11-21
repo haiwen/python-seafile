@@ -5,15 +5,16 @@ from seafileapi.repos import Repos
 
 class SeafileApiClient(object):
     """Wraps seafile web api"""
-    def __init__(self, server, username, password, **kwargs):
+    def __init__(self, server, username, password, request_kwargs=None):
         """Wraps various basic operations to interact with seahub http api.
         """
         self.server = server
         self.username = username
         self.password = password
         # FIXME: filter valid kwargs
-        self.request_kwargs = kwargs
-        
+        self.request_kwargs = (request_kwargs
+                               if request_kwargs is not None
+                               else {})
         self._token = None
 
         self.repos = Repos(self)
