@@ -5,18 +5,19 @@ from seafileapi.repos import Repos
 
 class SeafileApiClient(object):
     """Wraps seafile web api"""
-    def __init__(self, server, username, password):
+    def __init__(self, server, username=None, password=None, token=None):
         """Wraps various basic operations to interact with seahub http api.
         """
         self.server = server
         self.username = username
         self.password = password
-        self._token = None
+        self._token = token
 
         self.repos = Repos(self)
         self.groups = Groups(self)
 
-        self._get_token()
+        if token is None:
+            self._get_token()
 
     def _get_token(self):
         data = {
