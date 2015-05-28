@@ -18,4 +18,4 @@ SRCDIR=$(dirname "${SCRIPT}")
 
 cd "${SRCDIR}"
 
-nosetests $@
+py.test $@
