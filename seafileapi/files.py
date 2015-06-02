@@ -46,6 +46,7 @@ class _SeafDirentBase(object):
         postdata = {'operation': 'rename', 'newname': newname}
         resp = self.client.post(url, data=postdata)
         self.id = resp.headers['oid']
+        self.path = os.path.join(os.path.dirname(self.path), newname)
 
     def copyTo(self, file_names, dst_dir, dst_repo=None):
         """Copy filename to newname (also to a different directory)
@@ -67,6 +68,7 @@ class _SeafDirentBase(object):
         postdata = {'operation': 'move', 'dst_repo': dst_repo, 'dst_dir': dst_dir}
         resp = self.client.post(url, data=postdata)
         self.id = resp.headers['oid']
+        self.path = os.path.join(dst_dir, os.path.basename(self.path))
 
     def get_share_link(self):
         pass
