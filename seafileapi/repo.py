@@ -73,6 +73,45 @@ class Repo(object):
         """
         pass
 
+    def _share_operation(self, operation, share_type, users=None, group_id=None, permission=None):
+        """Manage sharing on this repo
+        :param operation: Can be 'share' or 'unshare'
+        :param share_type: Type of share, can be 'personal', 'group' or 'public'.
+                           If personal, then users param must be specified.
+                           If group, then group_id param must be specified.
+       :param users: String, list or tuple of usernames/email addresses
+       :param group_id: String group id from Seafile
+       :param permission: String, 'r' or 'rw'
+        """
+        url = '/api2/shared-repos/' + self.id + '/'
+        if share_type not in ['personal', 'group', 'public']:
+            raise ValueError('Invalid share type: {}'.format(share_type))
+        if share_type == 'personal' and users is None or len(users) == 0:
+            raise ValueError('Invalid users supplied for personal share: {}'.format(users))
+        if share_type == 'group' and group_id is None:
+            raise ValueError('Invalid group_id for group share: {}'.format(group_id))
+        if permission not in ['r', 'rw']:
+            raise ValueError('Invalid permission: {}'.format(permission))
+        if isinstance(users, (list, tuple)):
+            users = ','.join(users)
+        query = '?' + urlencode(dict(share_type=share_type, users=users, group_id=group_id, permission=permission))
+        if operation == 'share':
+            resp = self.client.put(url + query)
+        elif operation == 'unshare':
+            query = '?' + urlencode(dict(share_type=share_type, user=users, group_id=group_id, permission=permission))
+            resp = self.client.delete(url + query)
+        else:
+            raise ValueError('Invalid share operation: {}'.format(operation))
+
+    def share(self, share_type, users=None, group_id=None, permission=None):
+        self._share_operation('share', share_type=share_type, users=users, group_id=group_id, permission=permission)
+
+    def unshare(self, share_type, users=None, group_id=None, permission=None):
+        if isinstance(users, (list, tuple)):
+            # Unshare operation does not accept a list of users, only a single user
+            raise TypeError('Unshare operation only accepts one user at a time')
+        self._share_operation('unshare', share_type=share_type, users=users, group_id=group_id, permission=permission)
+
     ## Operations only the repo owner can do:
 
     def update(self, name=None, desc=None):
