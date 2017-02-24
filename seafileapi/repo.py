@@ -3,31 +3,37 @@ from seafileapi.utils import utf8lize
 from seafileapi.files import SeafDir, SeafFile
 from seafileapi.utils import raise_does_not_exist
 
+class Folder(object):
 
-class SharedFolder(object):
-    '''
-    a shared folder
-    The interface (/api/v2.1/shared-folders/) returned object.
-    '''
     def __init__(self,client, **kwargs):
         self.client = client
 
         for k,v in kwargs.items():
             self.__setattr__(k,v)
 
-    def get_share_type(self):
-        return self.share_type
-
     def get(self, attr_name, default_value):
         if not hasattr(self, attr_name):
             return default_value
         return self.__getattribute__(attr_name)
 
-
-
     def __str__(self):
         tmp = self.__dict__()
         return str(tmp)
+
+
+class SharedFolder(Folder):
+    '''
+    a shared folder
+    The interface (/api/v2.1/shared-folders/) returned object.
+    '''
+    def __init__(self,client, **kwargs):
+        super(SharedFolder, self).__init__(client,**kwargs)
+
+    def get_share_type(self):
+        return self.share_type
+
+
+
 
 
 
@@ -60,6 +66,9 @@ class Repo(object):
 
     def is_readonly(self):
         return 'w' not in self.perm
+
+    def get_name(self):
+        return self.name
 
     @raise_does_not_exist('The requested file does not exist')
     def get_file(self, path):
@@ -160,6 +169,69 @@ class Repo(object):
 
     def restore(self, commit_id):
         pass
+
+    def share_folder(self,path, share_type, users=None, group_id=None, permission=None):
+        '''
+
+        :param path:        [string]
+        :param share_type:  [string] one of values: 'user', 'group' or 'public'.
+        :param users:       [string] email
+        :param group_id:    [int]
+        :param permission:  [string] one of values: 'r' , 'rw'
+        :return:
+        '''
+        return self._share_folder_operation('share',path, share_type=share_type, users=users, group_id=group_id, permission=permission)
+
+    def unshare_folder(self,path, share_type, users=None, group_id=None, permission=None):
+        '''
+
+        :param path:        [string]
+        :param share_type:  [string] one of values: 'user', 'group' or 'public'.
+        :param users:       [string] email
+        :param group_id:    [int]
+        :param permission:  [string] one of values: 'r' , 'rw'
+        :return:
+        '''
+        return self._share_folder_operation('unshare',path, share_type=share_type, users=users, group_id=group_id, permission=permission)
+
+    def _share_folder_operation(self, operation, path, share_type, users=None, group_id=None, permission=None):
+        """Manage sharing on this folder
+        :param operation: Can be 'share' or 'unshare'
+        :param share_type: Type of share, can be 'personal', 'group' or 'public'.
+                           If personal, then users param must be specified.
+                           If group, then group_id param must be specified.
+       :param users: String, list or tuple of usernames/email addresses
+       :param group_id: String group id from Seafile
+       :param permission: String, 'r' or 'rw'
+        """
+
+        # /api2/repos/{repo-id}/dir/shared_items/?p={path}
+        url = '/api2/repos/' + self.id.decode() + '/dir/shared_items/?' + urlencode(dict(p=path))
+
+        if share_type not in ['user', 'group', 'public']:
+            raise ValueError('Invalid share type: {}'.format(share_type))
+        if share_type == 'personal' and users is None or len(users) == 0:
+            raise ValueError('Invalid users supplied for personal share: {}'.format(users))
+        if share_type == 'group' and group_id is None:
+            raise ValueError('Invalid group_id for group share: {}'.format(group_id))
+        if permission not in ['r', 'rw']:
+            raise ValueError('Invalid permission: {}'.format(permission))
+
+        if isinstance(users, (list, tuple)):
+            users = ','.join(users)
+
+        param =dict(share_type=share_type, username=users, group_id=group_id, permission=permission)
+        # query = '?' + urlencode(dict(share_type=share_type, users=users, group_id=group_id, permission=permission))
+
+        if operation == 'share':
+            resp = self.client.put(url = url,data = param)
+        elif operation == 'unshare':
+            query = '&' + urlencode(param)
+            resp = self.client.delete(url + query)
+        else:
+            raise ValueError('Invalid share operation: {}'.format(operation))
+
+        return resp
 
 class RepoRevision(object):
     def __init__(self, client, repo, commit_id):

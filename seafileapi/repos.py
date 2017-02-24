@@ -25,6 +25,24 @@ class Repos(object):
         repos_json = self.client.get('/api2/repos/').json()
         return  [Repo.from_json(self.client, j) for j in repos_json]
 
+    @raise_does_not_exist('The requested library does not exist')
+    def get_repo_by_name(self,name):
+        '''
+        Get the repo which the name
+        :param name:    [string]
+        :return:    [Repo|None]
+        '''
+
+        #important: Only return one repo for  multiple repos with the same.
+        repos_list = self.list_repos()
+        for repo in repos_list:
+            repo_name = repo.get_name().decode()
+            if  repo_name == name:
+                return repo
+
+        return None
+
+
     def list_shared_folders(self,shared_email=None):
         '''
         List Shared Folders
