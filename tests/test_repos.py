@@ -21,7 +21,15 @@ def test_create_encrypted_repo(client):
 def test_list_repos(client):
     repos = client.repos.list_repos()
     for repo in repos:
+        print(repo.name, ":", repo.owner)
         assert len(repo.id) == 36
+
+def test_list_shared_folder(client):
+    repos = client.repos.list_shared_folders()
+    for repo in repos:
+
+        print(repo)
+
 
 def _create_repo(client, password=None):
     repo_name = '测试资料库-%s' % randstring()

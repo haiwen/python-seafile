@@ -1,7 +1,35 @@
-from urllib import urlencode
+from urllib.parse import urlencode
 from seafileapi.utils import utf8lize
 from seafileapi.files import SeafDir, SeafFile
 from seafileapi.utils import raise_does_not_exist
+
+
+class SharedFolder(object):
+    '''
+    a shared folder
+    The interface (/api/v2.1/shared-folders/) returned object.
+    '''
+    def __init__(self,client, **kwargs):
+        self.client = client
+
+        for k,v in kwargs.items():
+            self.__setattr__(k,v)
+
+    def get_share_type(self):
+        return self.share_type
+
+    def get(self, attr_name, default_value):
+        if not hasattr(self, attr_name):
+            return default_value
+        return self.__getattribute__(attr_name)
+
+
+
+    def __str__(self):
+        tmp = self.__dict__()
+        return str(tmp)
+
+
 
 class Repo(object):
     """
