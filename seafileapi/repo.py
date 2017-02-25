@@ -3,39 +3,6 @@ from seafileapi.utils import utf8lize
 from seafileapi.files import SeafDir, SeafFile
 from seafileapi.utils import raise_does_not_exist
 
-class Folder(object):
-
-    def __init__(self,client, **kwargs):
-        self.client = client
-
-        for k,v in kwargs.items():
-            self.__setattr__(k,v)
-
-    def get(self, attr_name, default_value):
-        if not hasattr(self, attr_name):
-            return default_value
-        return self.__getattribute__(attr_name)
-
-    def __str__(self):
-        tmp = self.__dict__()
-        return str(tmp)
-
-
-class SharedFolder(Folder):
-    '''
-    a shared folder
-    The interface (/api/v2.1/shared-folders/) returned object.
-    '''
-    def __init__(self,client, **kwargs):
-        super(SharedFolder, self).__init__(client,**kwargs)
-
-    def get_share_type(self):
-        return self.share_type
-
-
-
-
-
 
 class Repo(object):
     """
@@ -50,6 +17,21 @@ class Repo(object):
         self.encrypted = encrypted
         self.owner = owner
         self.perm = perm
+
+    @staticmethod
+    def create_from_repo_id(client,repo_id):
+        url = "/api2/repos/%s/"%(repo_id)
+        resp = client.get(url).json()
+        param = {
+            "repo_name":resp["name"],
+            "repo_desc":resp["desc"],
+            "encrypted":resp["encrypted"],
+            "owner":resp["owner"],
+            "perm":resp["permission"]
+        }
+        return Repo(client, repo_id, **param)
+
+
 
     @classmethod
     def from_json(cls, client, repo_json):
@@ -81,7 +63,7 @@ class Repo(object):
         query = '?' + urlencode(dict(p=path))
         file_json = self.client.get(url + query).json()
 
-        return SeafFile(self, path, file_json['id'], file_json['size'])
+        return SeafFile(self.id, path, file_json['id'], file_json['size'],self.client)
 
     @raise_does_not_exist('The requested dir does not exist')
     def get_dir(self, path):
@@ -95,7 +77,7 @@ class Repo(object):
         resp = self.client.get(url + query)
         dir_id = resp.headers['oid']
         dir_json = resp.json()
-        dir = SeafDir(self, path, dir_id)
+        dir = SeafDir(self.id, path, dir_id,0,self.client)
         dir.load_entries(dir_json)
         return dir
 

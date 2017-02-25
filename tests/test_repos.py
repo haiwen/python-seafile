@@ -31,13 +31,13 @@ def test_list_shared_folder(client):
         print(repo)
 
 def test_shared_folder_to_user(client):
-    repo_obj = client.repos.get_repo_by_name("temp")
-    param = {"path":"/1", "share_type":"user", "users":"48540572@qq.com", "group_id":None, "permission":'rw'}
+    repo_obj = client.repos.get_repo_by_name("temp_bak")
+    param = {"path":"/1", "share_type":"user", "users":"1051708338@qq.com", "group_id":None, "permission":'rw'}
     repo_obj.share_folder(**param)
 
 def test_unshared_folder_to_user(client):
-    repo_obj = client.repos.get_repo_by_name("temp")
-    param = {"path":"/1", "share_type":"user", "users":"48540572@qq.com", "group_id":None, "permission":'rw'}
+    repo_obj = client.repos.get_repo_by_name("temp_bak")
+    param = {"path":"/1", "share_type":"user", "users":"1051708338@qq.com", "group_id":None, "permission":'rw'}
     repo_obj.unshare_folder(**param)
 
 

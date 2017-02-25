@@ -1,5 +1,6 @@
-from seafileapi.repo import Repo,SharedFolder
+from seafileapi.repo import Repo
 from seafileapi.utils import raise_does_not_exist
+from seafileapi.files import SeafDir
 
 class Repos(object):
     def __init__(self, client):
@@ -47,7 +48,7 @@ class Repos(object):
         '''
         List Shared Folders
         :param  shared_email    [string|None]According to the email to filter on the Shared folder. if None then no filter.
-        :return:    [list(SharedFolder)]
+        :return:    [list(SeafDir)]
         '''
 
         repos_json = self.client.get('/api/v2.1/shared-folders/').json()
@@ -55,14 +56,15 @@ class Repos(object):
 
         for t_folder in repos_json:
 
-            folder_obj = SharedFolder(self.client, **t_folder)
-            t_user_email = folder_obj.get("user_email",None)
+            seaf_dir_obj = SeafDir.create_from_shared_folder(t_folder,self.client)
+
+            t_user_email = t_folder.get("user_email",None)
 
             if shared_email:
                 if t_user_email == shared_email:
-                    shared_folders.append(t_folder)
+                    shared_folders.append(seaf_dir_obj)
             else:
-                shared_folders.append(t_folder)
+                shared_folders.append(seaf_dir_obj)
 
         return repos_json
 
