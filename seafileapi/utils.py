@@ -1,4 +1,5 @@
 import string
+import sys
 import random
 from functools import wraps
 from urllib.parse import urlencode
@@ -45,6 +46,10 @@ def querystr(**kwargs):
     return '?' + urlencode(kwargs)
 
 def utf8lize(obj):
+
+    if bytes != str: # Python 3
+        return obj
+
     if isinstance(obj, dict):
         return {k: to_utf8(v) for k, v in obj.items()}
 

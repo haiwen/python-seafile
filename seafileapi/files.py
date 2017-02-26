@@ -32,9 +32,21 @@ class _SeafDirentBase(object):
     def name(self):
         return posixpath.basename(self.path)
 
-    @property
-    def path(self):
+    def get_path(self):
         return self.path
+
+    def get_repo_id(self):
+        return self.repo_id
+
+    # @property
+    # def path(self):
+    #     return self.path
+    #
+    # @property
+    # def repo_id(self):
+    #     return self.repo_id
+
+
 
     def list_revisions(self):
         pass
@@ -181,8 +193,8 @@ class SeafDir(_SeafDirentBase):
         return len(self.entries) if self.entries is not None else 0
     
     def __str__(self):
-        return 'SeafDir[repo=%s,path=%s,entries=%s]' % \
-            (self.repo_id[:6], self.path, self.num_entries)
+        return 'SeafDir[repo=%s,path=%s]' % \
+            (self.repo_id[:6], self.path)
 
     __repr__ = __str__
 

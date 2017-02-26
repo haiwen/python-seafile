@@ -37,7 +37,7 @@ class Repos(object):
         #important: Only return one repo for  multiple repos with the same.
         repos_list = self.list_repos()
         for repo in repos_list:
-            repo_name = repo.get_name().decode()
+            repo_name = repo.get_name()#.decode()
             if  repo_name == name:
                 return repo
 
@@ -66,7 +66,7 @@ class Repos(object):
             else:
                 shared_folders.append(seaf_dir_obj)
 
-        return repos_json
+        return shared_folders
 
 
 

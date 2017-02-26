@@ -2,6 +2,7 @@ from urllib.parse import urlencode
 from seafileapi.utils import utf8lize
 from seafileapi.files import SeafDir, SeafFile
 from seafileapi.utils import raise_does_not_exist
+from seafileapi.exceptions import ClientHttpError, DoesNotExist
 
 
 class Repo(object):
@@ -66,7 +67,7 @@ class Repo(object):
         return SeafFile(self.id, path, file_json['id'], file_json['size'],self.client)
 
     @raise_does_not_exist('The requested dir does not exist')
-    def get_dir(self, path):
+    def get_dir(self, path, recursive=True):
         """Get the dir object located in `path` in this repo.
 
         Return a :class:`SeafDir` object
@@ -78,8 +79,28 @@ class Repo(object):
         dir_id = resp.headers['oid']
         dir_json = resp.json()
         dir = SeafDir(self.id, path, dir_id,0,self.client)
-        dir.load_entries(dir_json)
+
+        if recursive:
+            dir.load_entries(dir_json)
         return dir
+
+    def is_exist_dir(self,path):
+        '''
+        Determine whether the path exists
+        :param path:
+        :return:
+        '''
+        exist = False
+        try:
+            dir = self.get_dir(path,False)
+            if dir:
+                exist = True
+        except DoesNotExist:
+            pass
+
+        return exist
+
+
 
     def delete(self):
         """Remove this repo. Only the repo owner can do this"""
@@ -188,7 +209,7 @@ class Repo(object):
         """
 
         # /api2/repos/{repo-id}/dir/shared_items/?p={path}
-        url = '/api2/repos/' + self.id.decode() + '/dir/shared_items/?' + urlencode(dict(p=path))
+        url = '/api2/repos/' + self.id + '/dir/shared_items/?' + urlencode(dict(p=path))
 
         if share_type not in ['user', 'group', 'public']:
             raise ValueError('Invalid share type: {}'.format(share_type))
