@@ -14,6 +14,8 @@ class OperationError(Exception):
     """Expcetion to raise when an opeartion is failed"""
     pass
 
+class GroupExisted(Exception):
+    pass
 
 class DoesNotExist(Exception):
     """Raised when not matching resource can be found."""
