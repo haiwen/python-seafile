@@ -20,6 +20,11 @@ class Groups(object):
 
 
     def get_group(self,name):
+        '''
+
+        :param name:
+        :return:    [Group]
+        '''
         url = "/api2/groups/"
         resp_json = self.client.get(url).json()
 
@@ -38,6 +43,11 @@ class AdminGroups(Groups):
         super(AdminGroups,self).__init__(client)
 
     def list_groups(self):
+        """
+
+        :return:    [list(AdminGroup)]
+        """
+
         url = "/api/v2.1/admin/groups/?page=1&per_page=1000"
         resp_json = self.client.get(url).json()
 
@@ -49,15 +59,28 @@ class AdminGroups(Groups):
             groups.append(grp)
         return groups
 
+    def get_group(self,group_name):
+        '''
 
-    def remove_group(self,group_name):
+        :param group_name:
+        :return:    [AdminGroup]
+        '''
         grp_list = self.list_groups()
 
+        group = None
         for grp in grp_list:
             if grp.group_name == group_name:
-                self._remove_group(grp.group_id)
+                group = grp
                 break
 
+        return group
+
+    def remove_group(self,group_name):
+
+        group = self.get_group(group_name)
+
+        if group:
+            self._remove_group(group.group_id)
 
 
     def _remove_group(self, group_id):
