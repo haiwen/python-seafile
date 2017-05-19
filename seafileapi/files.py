@@ -144,7 +144,7 @@ class SeafDir(_SeafDirentBase):
         query = '?' + urlencode(dict(p=path))
         file_json = self.client.get(url + query).json()
 
-        return SeafFile(self.id, path, file_json['id'], file_json['size'],self.client)
+        return SeafFile(self.repo_id, path, file_json['id'], file_json['size'],self.client)
 
 
     def upload_local_file(self, filepath, name=None):
