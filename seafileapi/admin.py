@@ -5,3 +5,6 @@ class SeafileAdmin(object):
         
     def list_user_repos(self, username):
         pass
+
+    def is_exist_group(self,group_name):
+        pass

@@ -1,7 +1,9 @@
-from urllib import urlencode
+from urllib.parse import urlencode
 from seafileapi.utils import utf8lize
 from seafileapi.files import SeafDir, SeafFile
 from seafileapi.utils import raise_does_not_exist
+from seafileapi.exceptions import ClientHttpError, DoesNotExist
+
 
 class Repo(object):
     """
@@ -16,6 +18,21 @@ class Repo(object):
         self.encrypted = encrypted
         self.owner = owner
         self.perm = perm
+
+    @staticmethod
+    def create_from_repo_id(client,repo_id):
+        url = "/api2/repos/%s/"%(repo_id)
+        resp = client.get(url).json()
+        param = {
+            "repo_name":resp["name"],
+            "repo_desc":resp["desc"],
+            "encrypted":resp["encrypted"],
+            "owner":resp["owner"],
+            "perm":resp["permission"]
+        }
+        return Repo(client, repo_id, **param)
+
+
 
     @classmethod
     def from_json(cls, client, repo_json):
@@ -33,6 +50,9 @@ class Repo(object):
     def is_readonly(self):
         return 'w' not in self.perm
 
+    def get_name(self):
+        return self.name
+
     @raise_does_not_exist('The requested file does not exist')
     def get_file(self, path):
         """Get the file object located in `path` in this repo.
@@ -44,10 +64,10 @@ class Repo(object):
         query = '?' + urlencode(dict(p=path))
         file_json = self.client.get(url + query).json()
 
-        return SeafFile(self, path, file_json['id'], file_json['size'])
+        return SeafFile(self.id, path, file_json['id'], file_json['size'],self.client)
 
     @raise_does_not_exist('The requested dir does not exist')
-    def get_dir(self, path):
+    def get_dir(self, path, recursive=True):
         """Get the dir object located in `path` in this repo.
 
         Return a :class:`SeafDir` object
@@ -58,9 +78,29 @@ class Repo(object):
         resp = self.client.get(url + query)
         dir_id = resp.headers['oid']
         dir_json = resp.json()
-        dir = SeafDir(self, path, dir_id)
-        dir.load_entries(dir_json)
+        dir = SeafDir(self.id, path, dir_id,0,self.client)
+
+        if recursive:
+            dir.load_entries(dir_json)
         return dir
+
+    def is_exist_dir(self,path):
+        '''
+        Determine whether the path exists
+        :param path:
+        :return:
+        '''
+        exist = False
+        try:
+            dir = self.get_dir(path,False)
+            if dir:
+                exist = True
+        except DoesNotExist:
+            pass
+
+        return exist
+
+
 
     def delete(self):
         """Remove this repo. Only the repo owner can do this"""
@@ -132,6 +172,69 @@ class Repo(object):
 
     def restore(self, commit_id):
         pass
+
+    def share_folder(self,path, share_type, users=None, group_id=None, permission=None):
+        '''
+
+        :param path:        [string]
+        :param share_type:  [string] one of values: 'user', 'group' or 'public'.
+        :param users:       [string] email
+        :param group_id:    [int]
+        :param permission:  [string] one of values: 'r' , 'rw'
+        :return:
+        '''
+        return self._share_folder_operation('share',path, share_type=share_type, users=users, group_id=group_id, permission=permission)
+
+    def unshare_folder(self,path, share_type, users=None, group_id=None, permission=None):
+        '''
+
+        :param path:        [string]
+        :param share_type:  [string] one of values: 'user', 'group' or 'public'.
+        :param users:       [string] email
+        :param group_id:    [int]
+        :param permission:  [string] one of values: 'r' , 'rw'
+        :return:
+        '''
+        return self._share_folder_operation('unshare',path, share_type=share_type, users=users, group_id=group_id, permission=permission)
+
+    def _share_folder_operation(self, operation, path, share_type, users=None, group_id=None, permission=None):
+        """Manage sharing on this folder
+        :param operation: Can be 'share' or 'unshare'
+        :param share_type: Type of share, can be 'personal', 'group' or 'public'.
+                           If personal, then users param must be specified.
+                           If group, then group_id param must be specified.
+       :param users: String, list or tuple of usernames/email addresses
+       :param group_id: String group id from Seafile
+       :param permission: String, 'r' or 'rw'
+        """
+
+        # /api2/repos/{repo-id}/dir/shared_items/?p={path}
+        url = '/api2/repos/' + self.id + '/dir/shared_items/?' + urlencode(dict(p=path))
+
+        if share_type not in ['user', 'group', 'public']:
+            raise ValueError('Invalid share type: {}'.format(share_type))
+        if share_type == 'personal' and users is None or len(users) == 0:
+            raise ValueError('Invalid users supplied for personal share: {}'.format(users))
+        if share_type == 'group' and group_id is None:
+            raise ValueError('Invalid group_id for group share: {}'.format(group_id))
+        if permission not in ['r', 'rw']:
+            raise ValueError('Invalid permission: {}'.format(permission))
+
+        if isinstance(users, (list, tuple)):
+            users = ','.join(users)
+
+        param =dict(share_type=share_type, username=users, group_id=group_id, permission=permission)
+        # query = '?' + urlencode(dict(share_type=share_type, users=users, group_id=group_id, permission=permission))
+
+        if operation == 'share':
+            resp = self.client.put(url = url,data = param)
+        elif operation == 'unshare':
+            query = '&' + urlencode(param)
+            resp = self.client.delete(url + query)
+        else:
+            raise ValueError('Invalid share operation: {}'.format(operation))
+
+        return resp
 
 class RepoRevision(object):
     def __init__(self, client, repo, commit_id):

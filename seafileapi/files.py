@@ -2,7 +2,8 @@ import io
 import os
 import posixpath
 import re
-from seafileapi.utils import querystr, utf8lize
+from urllib.parse import urlencode
+from seafileapi.utils import querystr, utf8lize,raise_does_not_exist
 
 ZERO_OBJ_ID = '0000000000000000000000000000000000000000'
 
@@ -13,15 +14,16 @@ class _SeafDirentBase(object):
     """
     isdir = None
 
-    def __init__(self, repo, path, object_id, size=0):
+    def __init__(self, repo_id, path, object_id, size=0, client=None):
         """
         :param:`path` the full path of this entry within its repo, like
         "/documents/example.md"
 
         :param:`size` The size of a file. It should be zero for a dir.
         """
-        self.client = repo.client
-        self.repo = repo
+
+        self.client = client
+        self.repo_id = repo_id
         self.path = path
         self.id = object_id
         self.size = size
@@ -30,12 +32,28 @@ class _SeafDirentBase(object):
     def name(self):
         return posixpath.basename(self.path)
 
+    def get_path(self):
+        return self.path
+
+    def get_repo_id(self):
+        return self.repo_id
+
+    # @property
+    # def path(self):
+    #     return self.path
+    #
+    # @property
+    # def repo_id(self):
+    #     return self.repo_id
+
+
+
     def list_revisions(self):
         pass
 
     def delete(self):
         suffix = 'dir' if self.isdir else 'file'
-        url = '/api2/repos/%s/%s/' % (self.repo.id, suffix) + querystr(p=self.path)
+        url = '/api2/repos/%s/%s/' % (self.repo_id, suffix) + querystr(p=self.path)
         resp = self.client.delete(url)
         return resp
 
@@ -75,12 +93,12 @@ class SeafDir(_SeafDirentBase):
         """
         # TODO: file name validation
         path = posixpath.join(self.path, name)
-        url = '/api2/repos/%s/file/' % self.repo.id + querystr(p=path, reloaddir='true')
+        url = '/api2/repos/%s/file/' % self.repo_id + querystr(p=path, reloaddir='true')
         postdata = {'operation': 'create'}
         resp = self.client.post(url, data=postdata)
         self.id = resp.headers['oid']
         self.load_entries(resp.json())
-        return SeafFile(self.repo, path, ZERO_OBJ_ID, 0)
+        return SeafFile(self.repo_id, path, ZERO_OBJ_ID, 0,self.client)
 
     def mkdir(self, name):
         """Create a new sub folder right under this dir.
@@ -88,12 +106,12 @@ class SeafDir(_SeafDirentBase):
         Return a :class:`SeafDir` object of the newly created sub folder.
         """
         path = posixpath.join(self.path, name)
-        url = '/api2/repos/%s/dir/' % self.repo.id + querystr(p=path, reloaddir='true')
+        url = '/api2/repos/%s/dir/' % self.repo_id + querystr(p=path, reloaddir='true')
         postdata = {'operation': 'mkdir'}
         resp = self.client.post(url, data=postdata)
         self.id = resp.headers['oid']
         self.load_entries(resp.json())
-        return SeafDir(self.repo, path, ZERO_OBJ_ID)
+        return SeafDir(self.repo_id, path, ZERO_OBJ_ID,0,self.client)
 
     def upload(self, fileobj, filename):
         """Upload a file to this folder.
@@ -111,7 +129,23 @@ class SeafDir(_SeafDirentBase):
             'parent_dir': self.path,
         }
         self.client.post(upload_url, files=files)
-        return self.repo.get_file(posixpath.join(self.path, filename))
+
+        # repo_obj = Repo.create_from_repo_id(self.client, self.repo_id)
+        return self.get_file(posixpath.join(self.path, filename))
+
+
+    @raise_does_not_exist('The requested file does not exist')
+    def get_file(self, path):
+        """Get the file object located in `path` in this repo.
+        Return a :class:`SeafFile` object
+        """
+        assert path.startswith('/')
+        url = '/api2/repos/%s/file/detail/' % self.repo_id
+        query = '?' + urlencode(dict(p=path))
+        file_json = self.client.get(url + query).json()
+
+        return SeafFile(self.id, path, file_json['id'], file_json['size'],self.client)
+
 
     def upload_local_file(self, filepath, name=None):
         """Upload a file to this folder.
@@ -126,7 +160,7 @@ class SeafDir(_SeafDirentBase):
             return self.upload(fp, name)
 
     def _get_upload_link(self):
-        url = '/api2/repos/%s/upload-link/' % self.repo.id
+        url = '/api2/repos/%s/upload-link/' % self.repo_id
         resp = self.client.get(url)
         return re.match(r'"(.*)"', resp.text).group(1)
 
@@ -139,7 +173,7 @@ class SeafDir(_SeafDirentBase):
 
     def load_entries(self, dirents_json=None):
         if dirents_json is None:
-            url = '/api2/repos/%s/dir/' % self.repo.id + querystr(p=self.path)
+            url = '/api2/repos/%s/dir/' % self.repo_id + querystr(p=self.path)
             dirents_json = self.client.get(url).json()
 
         self.entries = [self._load_dirent(entry_json) for entry_json in dirents_json]
@@ -148,9 +182,9 @@ class SeafDir(_SeafDirentBase):
         dirent_json = utf8lize(dirent_json)
         path = posixpath.join(self.path, dirent_json['name'])
         if dirent_json['type'] == 'file':
-            return SeafFile(self.repo, path, dirent_json['id'], dirent_json['size'])
+            return SeafFile(self.repo_id, path, dirent_json['id'], dirent_json['size'],self.client)
         else:
-            return SeafDir(self.repo, path, dirent_json['id'], 0)
+            return SeafDir(self.repo_id, path, dirent_json['id'], 0,self.client)
 
     @property
     def num_entries(self):
@@ -159,10 +193,24 @@ class SeafDir(_SeafDirentBase):
         return len(self.entries) if self.entries is not None else 0
     
     def __str__(self):
-        return 'SeafDir[repo=%s,path=%s,entries=%s]' % \
-            (self.repo.id[:6], self.path, self.num_entries)
+        return 'SeafDir[repo=%s,path=%s]' % \
+            (self.repo_id[:6], self.path)
 
     __repr__ = __str__
+
+    @staticmethod
+    def create_from_shared_folder(item,client):
+        '''
+        Use the shared folder api return value to create SeafDir object.
+        :param item:    [dict]
+        :return:    [SeafDir]
+        '''
+        repo_id = item.get("repo_id",None)
+        path = item.get("path",None)
+        return SeafDir(repo_id, path, ZERO_OBJ_ID, 0,client)
+
+
+
 
 class SeafFile(_SeafDirentBase):
     isdir = False
@@ -172,10 +220,10 @@ class SeafFile(_SeafDirentBase):
 
     def __str__(self):
         return 'SeafFile[repo=%s,path=%s,size=%s]' % \
-            (self.repo.id[:6], self.path, self.size)
+            (self.repo_id[:6], self.path, self.size)
 
     def _get_download_link(self):
-        url = '/api2/repos/%s/file/' % self.repo.id + querystr(p=self.path)
+        url = '/api2/repos/%s/file/' % self.repo_id + querystr(p=self.path)
         resp = self.client.get(url)
         return re.match(r'"(.*)"', resp.text).group(1)
 

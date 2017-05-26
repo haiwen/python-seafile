@@ -2,6 +2,7 @@ import requests
 from seafileapi.utils import urljoin
 from seafileapi.exceptions import ClientHttpError
 from seafileapi.repos import Repos
+from seafileapi.groups import Groups
 
 class SeafileApiClient(object):
     """Wraps seafile web api"""
@@ -69,9 +70,3 @@ class SeafileApiClient(object):
         return resp
 
 
-class Groups(object):
-    def __init__(self, client):
-        pass
-
-    def create_group(self, name):
-        pass

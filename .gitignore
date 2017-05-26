@@ -10,7 +10,7 @@ __pycache__/
 env/
 build/
 develop-eggs/
-dist/
+#dist/
 downloads/
 eggs/
 lib/
@@ -52,3 +52,4 @@ docs/_build/
 
 # PyBuilder
 target/
+.idea
