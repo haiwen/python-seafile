@@ -2,7 +2,7 @@ import io
 import os
 import posixpath
 import re
-from urllib.parse import urlencode
+from urllib import urlencode
 from seafileapi.utils import querystr, utf8lize,raise_does_not_exist
 
 ZERO_OBJ_ID = '0000000000000000000000000000000000000000'
@@ -191,7 +191,7 @@ class SeafDir(_SeafDirentBase):
         if self.entries is None:
             self.load_entries()
         return len(self.entries) if self.entries is not None else 0
-    
+
     def __str__(self):
         return 'SeafDir[repo=%s,path=%s]' % \
             (self.repo_id[:6], self.path)

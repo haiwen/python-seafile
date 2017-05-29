@@ -2,7 +2,7 @@ import string
 import sys
 import random
 from functools import wraps
-from urllib.parse import urlencode
+from urllib import urlencode
 from seafileapi.exceptions import ClientHttpError, DoesNotExist
 
 def randstring(length=0):
@@ -42,7 +42,7 @@ def to_utf8(obj):
         return obj.encode('utf-8')
     return obj
 
-def querystr(**kwargs):
+def querystr(**kwgrgs):
     return '?' + urlencode(kwargs)
 
 def utf8lize(obj):
