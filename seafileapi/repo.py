@@ -37,10 +37,12 @@ class Repo(object):
     @classmethod
     def from_json(cls, client, repo_json):
         repo_json = utf8lize(repo_json)
-
         repo_id = repo_json['id']
         repo_name = repo_json['name']
-        repo_desc = repo_json['desc']
+        try:
+            repo_desc = repo_json['desc']
+        except:
+            repo_desc = "No desc"
         encrypted = repo_json['encrypted']
         perm = repo_json['permission']
         owner = repo_json['owner']
