@@ -42,7 +42,7 @@ def to_utf8(obj):
         return obj.encode('utf-8')
     return obj
 
-def querystr(**kwgrgs):
+def querystr(**kwargs):
     return '?' + urlencode(kwargs)
 
 def utf8lize(obj):
