@@ -1,3 +1,5 @@
+sudo: required
+
 language: python
 before_install:
   - ./ci/setup-server.sh

@@ -19,8 +19,7 @@ def client():
 @pytest.yield_fixture(scope='function')
 def repo(client):
     repo_name = 'tmp-测试资料库-%s' % randstring()
-    repo_desc = 'tmp, 一个测试资料库-%s' % randstring()
-    repo = client.repos.create_repo(repo_name, repo_desc)
+    repo = client.repos.create_repo(repo_name)
     try:
         yield repo
     finally:

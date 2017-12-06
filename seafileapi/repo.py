@@ -7,12 +7,11 @@ class Repo(object):
     """
     A seafile library
     """
-    def __init__(self, client, repo_id, repo_name, repo_desc,
+    def __init__(self, client, repo_id, repo_name,
                  encrypted, owner, perm):
         self.client = client
         self.id = repo_id
         self.name = repo_name
-        self.desc = repo_desc
         self.encrypted = encrypted
         self.owner = owner
         self.perm = perm
@@ -23,12 +22,11 @@ class Repo(object):
 
         repo_id = repo_json['id']
         repo_name = repo_json['name']
-        repo_desc = repo_json['desc']
         encrypted = repo_json['encrypted']
         perm = repo_json['permission']
         owner = repo_json['owner']
 
-        return cls(client, repo_id, repo_name, repo_desc, encrypted, owner, perm)
+        return cls(client, repo_id, repo_name, encrypted, owner, perm)
 
     def is_readonly(self):
         return 'w' not in self.perm
@@ -75,8 +73,8 @@ class Repo(object):
 
     ## Operations only the repo owner can do:
 
-    def update(self, name=None, desc=None):
-        """Update the name and/or description of this repo. Only the repo owner can do
+    def update(self, name=None):
+        """Update the name of this repo. Only the repo owner can do
         this.
         """
         pass

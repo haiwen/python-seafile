@@ -5,8 +5,8 @@ class Repos(object):
     def __init__(self, client):
         self.client = client
 
-    def create_repo(self, name, desc, password=None):
-        data = {'name': name, 'desc': desc}
+    def create_repo(self, name, password=None):
+        data = {'name': name}
         if password:
             data['passwd'] = password
         repo_json = self.client.post('/api2/repos/', data=data).json()

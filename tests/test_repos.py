@@ -25,11 +25,9 @@ def test_list_repos(client):
 
 def _create_repo(client, password=None):
     repo_name = '测试资料库-%s' % randstring()
-    repo_desc = '一个测试资料库-%s' % randstring()
-    repo = client.repos.create_repo(repo_name, repo_desc, password=password)
+    repo = client.repos.create_repo(repo_name, password=password)
 
     assert repo.name == repo_name
-    assert repo.desc == repo_desc
     assert len(repo.id) == 36
     assert repo.encrypted == (password is not None)
     assert repo.owner == 'self'
