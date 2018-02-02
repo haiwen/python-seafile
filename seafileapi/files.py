@@ -39,14 +39,36 @@ class _SeafDirentBase(object):
         resp = self.client.delete(url)
         return resp
 
-    def rename(self):
-        pass
+    def rename(self, newname):
+        """Change filename to newname
+        """
+        url = '/api2/repos/%s/file/' % self.repo.id + querystr(p=self.path)
+        postdata = {'operation': 'rename', 'newname': newname}
+        resp = self.client.post(url, data=postdata)
+        self.id = resp.headers['oid']
+        self.path = os.path.join(os.path.dirname(self.path), newname)
 
-    def copyTo(self, dst_dir, dst_repo=None):
-        pass
+    def copyTo(self, file_names, dst_dir, dst_repo=None):
+        """Copy filename to newname (also to a different directory)
+        """
+        src_dir = os.path.dirname(self.path)
+        url = '/api2/repos/%s/fileops/copy/' % self.repo.id + querystr(p=src_dir)
+        if dst_repo is None:
+            dst_repo = self.repo.id
+        postdata = {'operation': 'copy', 'file_names': file_names, 'dst_repo': dst_repo, 'dst_dir': dst_dir}
+        resp = self.client.post(url, data=postdata)
+        self.id = resp.headers['oid']
 
     def moveTo(self, dst_dir, dst_repo=None):
-        pass
+        """Move filename to newname (also to a different directory)
+        """
+        url = '/api2/repos/%s/file/' % self.repo.id + querystr(p=self.path)
+        if dst_repo is None:
+            dst_repo = self.repo.id
+        postdata = {'operation': 'move', 'dst_repo': dst_repo, 'dst_dir': dst_dir}
+        resp = self.client.post(url, data=postdata)
+        self.id = resp.headers['oid']
+        self.path = os.path.join(dst_dir, os.path.basename(self.path))
 
     def get_share_link(self):
         pass
