@@ -3,39 +3,32 @@
 <ul>
 <li><a href="#get_client">Get Client</a></li>
 <li>
-	<a href="#seaffile">SeafFile</a>
+	<a href="#repo"> Library </a>
 	<ul>
-		<li><a href="#seaffile_get_content">Get Content</a></li>
-		<li><a href="#seaffile_delete">Delete file</a></li>
+		<li><a href="#repo_get_repo">Get Library</a></li>
+		<li><a href="#repo_is_readonly">Check Library Permission</a></li>
+		<li><a href="#repo_list_repo">List all Libraries</a></li>
+		<li><a href="#repo_create_repo">Create Library</a></li>
+		<li><a href="#repo_delete">Delete Library</a></li>
 	</ul>
 </li>
 <li>
-	<a href="#seafdir">SeafDir</a>
+	<a href="#seafdir">Directory</a>
 	<ul>
-		<li><a href="#seafdir_ls">List</a></li>
-		<li><a href="#seafdir_create_empty_file">Create Empty File</a></li>
+		<li><a href="#seafdir_get">Get Directory</a></li>
+		<li><a href="#seafdir_ls">List Directory Entries</a></li>
 		<li><a href="#seafdir_mkdir">Create New Folder</a></li>
-		<li><a href="#seafdir_upload">Upload File</a></li>
-		<li><a href="#seafdir_upload_local_file">Upload Local File</a></li>
-		<li><a href="#seafdir_delete">Delete folder</a></li>
+		<li><a href="#seafdir_delete">Delete Directory</a></li>
 	</ul>
 </li>
 <li>
-	<a href="#repo"> Repo </a>
+	<a href="#seaffile">File</a>
 	<ul>
-		<li><a href="#repo_from_json">From Json</a></li>
-		<li><a href="#repo_is_readonly">Is ReadOnly </a></li>
-		<li><a href="#repo_get_file">Get File </a></li>
-		<li><a href="#repo_get_dir">Get Dir</a></li>
-		<li><a href="#repo_delete">Delete Repo</a></li>
-	</ul>
-</li>
-<li>
-	<a href="#repos"> Repos </a>
-	<ul>
-		<li><a href="#repos_get_repo">Get Repo</a></li>
-		<li><a href="#repos_list_repo">List Repo</a></li>
-		<li><a href="#repos_create_repo">Create Repo</a></li>
+		<li><a href="#seaffile_get">Get File</a></li>
+		<li><a href="#seaffile_get_content">Get Content</a></li>
+		<li><a href="#seaffile_create_empty_file">Create Empty File</a></li>
+		<li><a href="#seaffile_upload">Upload File</a></li>
+		<li><a href="#seaffile_delete">Delete file</a></li>
 	</ul>
 </li>
 </ul>
@@ -43,6 +36,8 @@
 </p>
 
 # Python Seafile
+
+
 ## <a id="get_client"></a> Get Client ##
 **Request Parameters**
 
@@ -63,36 +58,12 @@
 
 A Client Object
 
-## <a id="seaffile"></a> SeafFile ##
-### <a id="seaffile_get_content"></a> Get Content ###
 
+## <a id="repo"></a> Library ##
+### <a id="repo_get_repo"></a> Get Library ###
 **Request Parameters**
 
-None
-
-**Sample Case**
-
-
-
-```python
-
-    import seafileapi
-	
-    client = seafileapi.connect('http://127.0.0.1:8000', 'test@admin.com', 'password')
-    repo = client.repos.get_repo('09c16e2a-ff1a-4207-99f3-1351c3f1e507')
-    seaffile = repo.get_file('/root/test.md')
-	
-    content = seaffile.get_content()
-```
-
-**Return Type**
-
-File Content
-
-### <a id="seaffile_delete"></a> Delete a file ###
-**Request Parameters**
-
-None
+* repo_id
 
 **Sample Case**
 
@@ -102,17 +73,150 @@ None
 	
     client = seafileapi.connect('http://127.0.0.1:8000', 'test@admin.com', 'password')
     repo = client.repos.get_repo('09c16e2a-ff1a-4207-99f3-1351c3f1e507')
-    seaffile = repo.get_file('/root/test.md')
-	
-    seaffile.delete()
 ```
 
 **Return Type**
 
-A Response Instance
+A Library Object
 
-## <a id="seafdir"></a> SeafDir ##
-### <a id="seafdir_ls"></a> List ###
+**Exception**
+
+* Library does not exist.
+
+### <a id="repo_is_readonly"></a> Check Library Permission ###
+
+**Request Parameters**
+
+None
+
+**Sample Case**
+
+```python
+
+    import seafileapi
+
+    client = seafileapi.connect('http://127.0.0.1:8000', 'test@admin.com', 'password')
+    repo = client.repos.get_repo('09c16e2a-ff1a-4207-99f3-1351c3f1e507')
+    is_readonly = repo.is_readonly()
+```
+
+**Return Type**
+
+Boolean
+
+### <a id="repo_list_repo"></a> List all Libraries ###
+
+**Request Parameters**
+
+None
+
+**Sample Case**
+
+```python
+
+    import seafileapi
+	
+    client = seafileapi.connect('http://127.0.0.1:8000', 'test@admin.com', 'password')
+    repo_list = client.repos.list_repos()
+
+    print repo_list
+    Out >>> [<seafileapi.repo.Repo at 0x7f1bb0769750>,
+             <seafileapi.repo.Repo at 0x7f1bb07693d0>,
+             <seafileapi.repo.Repo at 0x7f1bb0769a50>,
+             <seafileapi.repo.Repo at 0x7f1bb077cc10>,
+             <seafileapi.repo.Repo at 0x7f1bb077cfd0>,
+             <seafileapi.repo.Repo at 0x7f1bb077ca10>]
+
+    print [repo.name for repo in repo_list]
+    Out >>> ['alphabox',
+             'hello',
+             'Doc',
+             'obj_test',
+             'fs_test',
+             'global']
+```
+
+**Return Type**
+
+A list of Libraries Object
+
+### <a id="repo_create_repo"></a> Create Library ###
+
+**Request Parameters**
+
+* name
+* password (default None)
+
+**Sample Case**
+
+```python
+
+    import seafileapi
+	
+    client = seafileapi.connect('http://127.0.0.1:8000', 'test@admin.com', 'password')
+    repo = client.repos.create_repo('test_repo')
+```
+
+**Return Type**
+
+A Library Object
+
+
+### <a id="repo_delete"></a> Delete Library ###
+
+**Request Parameters**
+
+None
+
+**Sample Case**
+
+```python
+
+    import seafileapi
+	
+    client = seafileapi.connect('http://127.0.0.1:8000', 'test@admin.com', 'password')
+    repo = client.repos.get_repo('09c16e2a-ff1a-4207-99f3-1351c3f1e507')
+    repo.delete()
+```
+
+**Return Type**
+
+None
+
+## <a id="seafdir"></a> Directory ##
+### <a id="seafdir_get"></a> Get Directory ###
+
+**Request Parameters**
+
+* path
+
+**Sample Case**
+
+```python
+
+    import seafileapi
+	
+    client = seafileapi.connect('http://127.0.0.1:8000', 'test@admin.com', 'password')
+    repo = client.repos.get_repo('09c16e2a-ff1a-4207-99f3-1351c3f1e507')
+    seafdir = repo.get_dir('/root')
+    print seafdir.__dict__
+    Out >>> {'client': SeafileApiClient[server=http://127.0.0.1:8000, user=admin@admin.com],
+             'entries': [],
+             'id': 'c3742dd86004d51c358845fa3178c87e4ab3aa60',
+             'path': '/root',
+             'repo': <seafileapi.repo.Repo at 0x7f2af56b1490>,
+             'size': 0}
+```
+
+**Return Type**
+
+A Directory Object
+
+**Exception**
+
+* Directory does not exist.
+
+### <a id="seafdir_ls"></a> List Directory Entries ###
 **Request Parameters**
 
 * force_refresh (default False)
@@ -149,29 +253,8 @@ A Response Instance
 
 **Return Type**
 
-List of SeafDir and SeafFile
+List of Directory and File
 
-### <a id="seafdir_create_empty_file"></a> Create Empty File ###
-**Request Parameters**
-
-* name
-
-**Sample Case**
-
-```python
-
-    import seafileapi
-	
-    client = seafileapi.connect('http://127.0.0.1:8000', 'test@admin.com', 'password')
-    repo = client.repos.get_repo('09c16e2a-ff1a-4207-99f3-1351c3f1e507')
-    seafdir = repo.get_dir('/root')
-	
-    new_file = seafdir.create_empty_file('tmp_file.md')
-```
-
-**Return Type**
-
-A SeafFile Object of new empty file
 
 ### <a id="seafdir_mkdir"></a> Create New Folder ###
 **Request Parameters**
@@ -193,59 +276,9 @@ A SeafFile Object of new empty file
 
 **Return Type**
 
-A SeafDir Object of new dir
+A Directory Object of new directory
 
-### <a id="seafdir_upload"></a> Upload ###
-**Request Parameters**
-* fileobj
-* filename
-
-**Sample Case**
-
-```python
-
-    import seafileapi
-	
-    client = seafileapi.connect('http://127.0.0.1:8000', 'test@admin.com', 'password')
-    repo = client.repos.get_repo('09c16e2a-ff1a-4207-99f3-1351c3f1e507')
-    seafdir = repo.get_dir('/root')
-	
-    file = seafdir.upload('this is file content', 'tmp_file.md')
-```
-
-**Return Type**
-
-A SeafFile Object of upload file
-
-
-### <a id="seafdir_upload_local_file"></a> Upload Local File ###
-**Request Parameters**
-
-* filepath
-* name (default None, default use local file name)
-
-**Sample Case**
-
-```python
-
-    import seafileapi
-	
-    client = seafileapi.connect('http://127.0.0.1:8000', 'test@admin.com', 'password')
-    repo = client.repos.get_repo('09c16e2a-ff1a-4207-99f3-1351c3f1e507')
-    seafdir = repo.get_dir('/root')
-	
-    file = seafdir.upload_local_file('/home/ubuntu/env.md')
-```
-
-**Return Type**
-
-A SeafFile Object of upload file
-
-**Exception**
-
-* Local file does not exist.
-
-### <a id="seafdir_delete"></a> delete a folder ###
+### <a id="seafdir_delete"></a> Delete Directory ###
 **Request Parameters**
 
 None
@@ -267,52 +300,9 @@ None
 
 A Response Instance
 
-## <a id="repo"></a> Repo ##
-### <a id="repo_from_json"></a> From Json ###
-**Request Parameters**
 
-* client
-* repo_json
-
-**Sample Case**
-
-```python
-
-    import seafileapi
-    from seafileapi.repo import Repo
-	
-    client = seafileapi.connect('http://127.0.0.1:8000', 'test@admin.com', 'password')
-    repo_json = {'id': '09c16e2a-ff1a-4207-99f3-1351c3f1e507', 'name': 'test_repo', 'encrypted': False, 'permission': 'rw', 'owner': 'test@admin.com'}
-    repo = Repo.from_json(client, repo_json)
-```
-	
-
-**Return Type**
-
-A Repo Object
-
-### <a id="repo_is_readonly"></a> Is ReadOnly ###
-
-**Request Parameters**
-
-None
-
-**Sample Case**
-
-```python
-
-    import seafileapi
-	
-    client = seafileapi.connect('http://127.0.0.1:8000', 'test@admin.com', 'password')
-    repo = client.repos.get_repo('09c16e2a-ff1a-4207-99f3-1351c3f1e507')
-    is_readonly = repo.is_readonly()
-```
-
-**Return Type**
-
-True or False
-
-### <a id="repo_get_file"></a> Get File ###
+## <a id="seaffile"></a> File ##
+### <a id="seaffile_get"></a> Get File ###
 
 **Request Parameters**
 
@@ -327,21 +317,50 @@ True or False
     client = seafileapi.connect('http://127.0.0.1:8000', 'test@admin.com', 'password')
     repo = client.repos.get_repo('09c16e2a-ff1a-4207-99f3-1351c3f1e507')
     seaffile = repo.get_file('/root/test.md')
+
+    print seafile.__dict__
+    Out >>> {'client': SeafileApiClient[server=http://127.0.0.1:8000, user=admin@admin.com],
+             'id': '0000000000000000000000000000000000000000',
+             'path': '/root/test.md',
+             'repo': <seafileapi.repo.Repo at 0x7f2af56b1490>,
+             'size': 0}
 ```
 
 **Return Type**
 
-A SeafFile Object
+A File Object
 
 **Exception**
 
 * File does not exist.
 
-### <a id="repo_get_dir"></a> Get Dir ###
+### <a id="seaffile_get_content"></a> Get Content ###
 
 **Request Parameters**
 
-* path
+None
+
+**Sample Case**
+
+```python
+
+    import seafileapi
+	
+    client = seafileapi.connect('http://127.0.0.1:8000', 'test@admin.com', 'password')
+    repo = client.repos.get_repo('09c16e2a-ff1a-4207-99f3-1351c3f1e507')
+    seaffile = repo.get_file('/root/test.md')
+	
+    content = seaffile.get_content()
+```
+
+**Return Type**
+
+File Content
+
+### <a id="seaffile_create_empty_file"></a> Create Empty File ###
+**Request Parameters**
+
+* name
 
 **Sample Case**
 
@@ -352,18 +371,44 @@ A SeafFile Object
     client = seafileapi.connect('http://127.0.0.1:8000', 'test@admin.com', 'password')
     repo = client.repos.get_repo('09c16e2a-ff1a-4207-99f3-1351c3f1e507')
     seafdir = repo.get_dir('/root')
+	
+    new_file = seafdir.create_empty_file('tmp_file.md')
 ```
 
 **Return Type**
 
-A SeafDir Object
+A File Object of new empty file
+
+
+### <a id="seaffile_upload_file"></a> Upload File ###
+**Request Parameters**
+
+* filepath
+* name (default None, default use local file name)
+
+**Sample Case**
+
+```python
+
+    import seafileapi
+	
+    client = seafileapi.connect('http://127.0.0.1:8000', 'test@admin.com', 'password')
+    repo = client.repos.get_repo('09c16e2a-ff1a-4207-99f3-1351c3f1e507')
+    seafdir = repo.get_dir('/root')
+	
+    file = seafdir.upload_local_file('/home/ubuntu/env.md')
+```
+
+**Return Type**
+
+A File Object of upload file
 
 **Exception**
 
-* Dir does not exist.
+* Local file does not exist.
 
-### <a id="repo_delete"></a> Delete Repo ###
 
+### <a id="seaffile_delete"></a> Delete a file ###
 **Request Parameters**
 
 None
@@ -376,93 +421,11 @@ None
 	
     client = seafileapi.connect('http://127.0.0.1:8000', 'test@admin.com', 'password')
     repo = client.repos.get_repo('09c16e2a-ff1a-4207-99f3-1351c3f1e507')
-    repo.delete()
+    seaffile = repo.get_file('/root/test.md')
+	
+    seaffile.delete()
 ```
 
 **Return Type**
 
-None
-
-
-## <a id="repos"></a> Repos ##
-### <a id="repos_get_repo"></a> Get Repo ###
-**Request Parameters**
-
-* repo_id
-
-**Sample Case**
-
-```python
-
-    import seafileapi
-	
-    client = seafileapi.connect('http://127.0.0.1:8000', 'test@admin.com', 'password')
-    repo = client.repos.get_repo('09c16e2a-ff1a-4207-99f3-1351c3f1e507')
-```
-
-**Return Type**
-
-A Repo Object
-
-**Exception**
-
-* Repo does not exist.
-
-### <a id="repos_list_repo"></a> List Repo ###
-
-**Request Parameters**
-
-None
-
-**Sample Case**
-
-```python
-
-    import seafileapi
-	
-    client = seafileapi.connect('http://127.0.0.1:8000', 'test@admin.com', 'password')
-    repo_list = client.repos.list_repos()
-
-    print repo_list
-    Out >>> [<seafileapi.repo.Repo at 0x7f1bb0769750>,
-             <seafileapi.repo.Repo at 0x7f1bb07693d0>,
-             <seafileapi.repo.Repo at 0x7f1bb0769a50>,
-             <seafileapi.repo.Repo at 0x7f1bb077cc10>,
-             <seafileapi.repo.Repo at 0x7f1bb077cfd0>,
-             <seafileapi.repo.Repo at 0x7f1bb077ca10>]
-
-    print [repo.name for repo in repo_list]
-    Out >>> ['alphabox',
-             'hello',
-             'Doc',
-             'obj_test',
-             'fs_test',
-             'global']
-```
-	
-
-**Return Type**
-
-A list of Repo Object
-
-### <a id="repos_create_repo"></a> Create Repo ###
-
-**Request Parameters**
-
-* name
-* password (default None)
-
-**Sample Case**
-
-```python
-
-    import seafileapi
-	
-    client = seafileapi.connect('http://127.0.0.1:8000', 'test@admin.com', 'password')
-    repo = client.repos.create_repo('test_repo')
-```
-
-**Return Type**
-
-A Repo Object
-
+A Response Instance
