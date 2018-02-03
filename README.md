@@ -5,4 +5,4 @@ python-seafile
 
 python client for seafile web api
 
-Doc: https://github.com/haiwen/seahub/blob/master/doc.md
+Doc: https://github.com/haiwen/python-seafile/blob/master/doc.md
