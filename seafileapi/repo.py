@@ -1,4 +1,8 @@
-from urllib import urlencode
+import sys
+if sys.version_info.major > 2:
+    from urllib.parse import urlencode
+else:
+    from urllib import urlencode
 from seafileapi.utils import utf8lize
 from seafileapi.files import SeafDir, SeafFile
 from seafileapi.utils import raise_does_not_exist

@@ -57,6 +57,7 @@ class SeafileApiClient(object):
         expected = kwargs.pop('expected', 200)
         if not hasattr(expected, '__iter__'):
             expected = (expected, )
+
         resp = requests.request(method, url, *args, **kwargs)
         if resp.status_code not in expected:
             msg = 'Expected %s, but get %s' % \
