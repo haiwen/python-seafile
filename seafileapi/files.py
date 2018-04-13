@@ -57,14 +57,67 @@ class _SeafDirentBase(object):
         resp = self.client.delete(url)
         return resp
 
-    def rename(self):
-        pass
+    def rename(self, newname):
+        """Change file/folder name to newname
+        """
+        suffix = 'dir' if self.isdir else 'file'
+        url = '/api2/repos/%s/%s/' % (self.repo.id, suffix) + querystr(p=self.path, reloaddir='true')
+        postdata = {'operation': 'rename', 'newname': newname}
+        resp = self.client.post(url, data=postdata)
+        succeeded = resp.status_code == 200
+        if succeeded:
+            if self.isdir:
+                new_dirent = self.repo.get_dir(os.path.join(os.path.dirname(self.path), newname))
+            else:
+                new_dirent = self.repo.get_file(os.path.join(os.path.dirname(self.path), newname))
+            for key in self.__dict__.keys():
+                self.__dict__[key] = new_dirent.__dict__[key]
+        return succeeded
 
-    def copyTo(self, dst_dir, dst_repo=None):
-        pass
+    def _copy_move_task(self, operation, dirent_type, dst_dir, dst_repo_id=None):
+        url = '/api/v2.1/copy-move-task/'
+        src_repo_id = self.repo.id
+        src_parent_dir = os.path.dirname(self.path)
+        src_dirent_name = os.path.basename(self.path)
+        dst_repo_id = dst_repo_id
+        dst_parent_dir = dst_dir
+        operation = operation
+        dirent_type =  dirent_type
+        postdata = {'src_repo_id': src_repo_id, 'src_parent_dir': src_parent_dir,
+                    'src_dirent_name': src_dirent_name, 'dst_repo_id': dst_repo_id,
+                    'dst_parent_dir': dst_parent_dir, 'operation': operation,
+                    'dirent_type': dirent_type}
+        return self.client.post(url, data=postdata)
 
-    def moveTo(self, dst_dir, dst_repo=None):
-        pass
+    def copyTo(self, dst_dir, dst_repo_id=None):
+        """Copy file/folder to other directory (also to a different repo)
+        """
+        if dst_repo_id is None:
+            dst_repo_id = self.repo.id
+        
+        dirent_type = 'dir' if self.isdir else 'file'
+        resp = self._copy_move_task('copy', dirent_type, dst_dir, dst_repo_id)
+        return resp.status_code == 200
+
+    def moveTo(self, dst_dir, dst_repo_id=None):
+        """Move file/folder to other directory (also to a different repo)
+        """
+        if dst_repo_id is None:
+            dst_repo_id = self.repo.id
+        
+        dirent_type = 'dir' if self.isdir else 'file'
+        resp = self._copy_move_task('move', dirent_type, dst_dir, dst_repo_id)
+        succeeded = resp.status_code == 200
+        if succeeded:
+            new_repo = self.client.repos.get_repo(dst_repo_id)
+            dst_path = os.path.join(dst_dir, os.path.basename(self.path))
+            if self.isdir:
+                new_dirent = new_repo.get_dir(dst_path)
+            else:
+                new_dirent = new_repo.get_file(dst_path)
+            for key in self.__dict__.keys():
+                self.__dict__[key] = new_dirent.__dict__[key]
+        return succeeded
 
     def get_share_link(self):
         pass
