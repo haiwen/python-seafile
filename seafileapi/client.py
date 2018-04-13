@@ -62,6 +62,7 @@ class SeafileApiClient(object):
         if resp.status_code not in expected:
             msg = 'Expected %s, but get %s' % \
                   (' or '.join(map(str, expected)), resp.status_code)
+            msg += '\n' + resp.content.decode('utf-8')
             raise ClientHttpError(resp.status_code, msg)
 
         return resp
