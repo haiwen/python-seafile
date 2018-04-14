@@ -43,6 +43,9 @@ class SeafileApiClient(object):
     def post(self, *args, **kwargs):
         return self._send_request('POST', *args, **kwargs)
 
+    def put(self, *args, **kwargs):
+        return self._send_request('PUT', *args, **kwargs)
+
     def delete(self, *args, **kwargs):
         return self._send_request('delete', *args, **kwargs)
 
