@@ -4,6 +4,7 @@ from seafileapi.exceptions import ClientHttpError
 from seafileapi.repos import Repos
 from seafileapi.groups import Groups
 from seafileapi.ping import Ping
+from seafileapi.admin import SeafileAdmin
 
 
 class AuthenticationError(ClientHttpError):
@@ -23,6 +24,7 @@ class SeafileApiClient(object):
         self.repos = Repos(self)
         self.groups = Groups(self)
         self.ping = Ping(self)
+        self.admin  = SeafileAdmin(self)
 
         if token is None:
             self._get_token()
