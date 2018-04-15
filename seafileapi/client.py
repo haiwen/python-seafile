@@ -4,6 +4,11 @@ from seafileapi.exceptions import ClientHttpError
 from seafileapi.repos import Repos
 from seafileapi.groups import Groups
 
+
+class AuthenticationError(ClientHttpError):
+    """Authentication error occurred while retrieving access token"""
+
+
 class SeafileApiClient(object):
     """Wraps seafile web api"""
     def __init__(self, server, username=None, password=None, token=None):
@@ -28,7 +33,17 @@ class SeafileApiClient(object):
         url = urljoin(self.server, '/api2/auth-token/')
         res = requests.post(url, data=data)
         if res.status_code != 200:
-            raise ClientHttpError(res.status_code, res.content)
+            if res.status_code == 400:
+                # Possible auth error
+                try:
+                    resp_json = res.json()
+                    if 'non_field_errors' in resp_json:
+                        raise AuthenticationError(res.status_code, res.content)
+                except (TypeError, ValueError), e:
+                    # fallback
+                    raise ClientHttpError(res.status_code, res.content)
+            else:
+                raise ClientHttpError(res.status_code, res.content)
         token = res.json()['token']
         assert len(token) == 40, 'The length of seahub api auth token should be 40'
         self._token = token
