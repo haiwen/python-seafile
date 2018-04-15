@@ -37,6 +37,24 @@ class Groups(object):
 
         return group
 
+    def rename_group(self, group_name, group_newname):
+        '''
+        Rename this group
+        :param group_name: Existing group name
+        :param group_newname: New group name
+        :return: [Group]
+        '''
+        group = self.get_group(group_name)
+        if not group:
+            raise DoesNotExist(group_name)
+
+        url = '/api2/groups/{group_id}/'.format(group_id=group.group_id)
+        params = {'operation': 'rename',
+                  'newname': group_newname}
+        resp_str = self.client.post(url, data=params, expected=[200])
+        group.group_name = group_newname  # Patch local object
+        return group
+
 
 class AdminGroups(Groups):
     def __init__(self, client):
