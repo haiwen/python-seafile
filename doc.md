@@ -31,6 +31,23 @@
 		<li><a href="#seaffile_delete">Delete file</a></li>
 	</ul>
 </li>
+<li>
+	<a href="#user">User</a>
+	<ul>
+		<li><a href="#user_get_accounts">Get accounts</a></li>
+		<li><a href="#user_create_account">Create account</a></li>
+		<li><a href="#user_delete_account">Delete account</a></li>
+		<li><a href="#user_add_account_to_group">Add account to group</a></li>
+	</ul>
+</li>
+<li>
+	<a href="#group">Group</a>
+	<ul>
+		<li><a href="#group_get_groupss">Get groups</a></li>
+		<li><a href="#group_create_group">Create group</a></li>
+		<li><a href="#group_delete_group">Delete group</a></li>
+	</ul>
+</li>
 </ul>
 </div>
 </p>
@@ -429,3 +446,189 @@ None
 **Return Type**
 
 A Response Instance
+
+
+## <a id="user"></a> User ##
+
+### <a id="user_get_accounts"></a> Get accounts ###
+**Request Parameters**
+
+None
+
+**Sample Case**
+
+```python
+
+    import seafileapi
+	
+    client = seafileapi.connect('http://127.0.0.1:8000', 'test@admin.com', 'password')
+    accounts = client.users.get_accounts()
+```
+
+**Return Type**
+
+A list of dictionnary containing source and email keys.
+
+**Exception**
+
+TBD
+
+### <a id="user_create_account"></a> Create account ###
+**Request Parameters**
+
+* email -- email as login name
+* password -- plain text password
+* name -- full text display name
+* groups_names -- list of groups' names to add this user to
+* note -- description / comment / whatever
+* is_staff -- is admin, default False
+* is_active -- can connect, default True
+
+
+**Sample Case**
+
+```python
+
+    import seafileapi
+	
+    client = seafileapi.connect('http://127.0.0.1:8000', 'test@admin.com', 'password')
+    accounts = client.users.create_account('test@admin.com', 'password', 'Test user', ['admins'])
+```
+
+**Return Type**
+
+A dictionnary, containing the created user.
+
+**Exception**
+
+TBD
+
+
+### <a id="user_delete_account"></a> Delete account ###
+**Request Parameters**
+
+* email -- email as login name
+
+
+**Sample Case**
+
+```python
+
+    import seafileapi
+	
+    client = seafileapi.connect('http://127.0.0.1:8000', 'test@admin.com', 'password')
+    accounts = client.users.delete_account('test@admin.com')
+```
+
+**Return Type**
+
+TBD
+
+**Exception**
+
+TBD
+
+
+### <a id="user_add_account_to_group"></a> Add account to group ###
+**Request Parameters**
+
+* username -- email as login name
+* groups_name -- group's name to add this user to
+
+**Sample Case**
+
+```python
+
+    import seafileapi
+	
+    client = seafileapi.connect('http://127.0.0.1:8000', 'test@admin.com', 'password')
+    accounts = client.users.add_account_to_group('test@admin.com', 'admins')
+```
+
+**Return Type**
+
+TBD
+
+**Exception**
+
+TBD
+
+
+
+
+## <a id="group"></a> Group ##
+
+### <a id="group_get_groups"></a> Get groups ###
+**Request Parameters**
+
+None
+
+**Sample Case**
+
+```python
+
+    import seafileapi
+	
+    client = seafileapi.connect('http://127.0.0.1:8000', 'test@admin.com', 'password')
+    groups = client.groups.get_groups()
+```
+
+**Return Type**
+
+A list of groups.
+
+**Exception**
+
+TBD
+
+
+
+### <a id="group_create_group"></a> Create group ###
+**Request Parameters**
+
+* group_name -- group's name
+
+
+**Sample Case**
+
+```python
+
+    import seafileapi
+	
+    client = seafileapi.connect('http://127.0.0.1:8000', 'test@admin.com', 'password')
+    accounts = client.groups.create_group('admins')
+```
+
+**Return Type**
+
+TBD
+
+**Exception**
+
+TBD
+
+
+### <a id="group_delete_group"></a> Delete group ###
+**Request Parameters**
+
+* group_name -- group's name
+
+
+**Sample Case**
+
+```python
+
+    import seafileapi
+	
+    client = seafileapi.connect('http://127.0.0.1:8000', 'test@admin.com', 'password')
+    accounts = client.groups.delete_group('admin')
+```
+
+**Return Type**
+
+TBD
+
+**Exception**
+
+TBD
+

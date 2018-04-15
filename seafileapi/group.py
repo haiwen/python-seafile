@@ -1,5 +1,5 @@
 
-class Group(object):
+class Groups(object):
     def __init__(self, client):
         """
         client -- Seafile client object

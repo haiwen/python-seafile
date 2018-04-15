@@ -1,7 +1,7 @@
 from group import Group
 
 
-class User(object):
+class Users(object):
     def __init__(self, client):
         """
         client -- Seafile client object
@@ -62,7 +62,7 @@ class User(object):
         value = resp.json()
         return value
 
-    def add_user_to_group(self, username, group_name):
+    def add_account_to_group(self, username, group_name):
         """
         Adds given username (email) to group (by group name)
 
