@@ -2,7 +2,7 @@ import requests
 from seafileapi.utils import urljoin
 from seafileapi.exceptions import ClientHttpError
 from seafileapi.repos import Repos
-from seafileapi.groups import Groups
+from seafileapi.groups import Groups, AdminGroups
 from seafileapi.ping import Ping
 from seafileapi.admin import SeafileAdmin
 
@@ -23,6 +23,7 @@ class SeafileApiClient(object):
 
         self.repos = Repos(self)
         self.groups = Groups(self)
+        self.admin_groups = AdminGroups(self)
         self.ping = Ping(self)
         self.admin  = SeafileAdmin(self)
 

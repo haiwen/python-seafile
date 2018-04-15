@@ -1,3 +1,4 @@
+from seafileapi.utils import utf8lize
 
 
 class Group(object):
@@ -42,6 +43,7 @@ class Group(object):
         url = "/api/v2.1/groups/%s/"%self.group_id
         param = {owner:owner}
         resp_json = self.client.put(url,data=param).json()
+
 
 class AdminGroup(object):
     def __init__(self, client, group_id, group_name,owner):
