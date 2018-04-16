@@ -127,7 +127,7 @@ class Repo(object):
         url = '/api2/shared-repos/' + self.id + '/'
         if share_type not in ['personal', 'group', 'public']:
             raise ValueError('Invalid share type: {}'.format(share_type))
-        if share_type == 'personal' and users is None or len(users) == 0:
+        if share_type == 'personal' and (users is None or len(users) == 0):
             raise ValueError('Invalid users supplied for personal share: {}'.format(users))
         if share_type == 'group' and group_id is None:
             raise ValueError('Invalid group_id for group share: {}'.format(group_id))
