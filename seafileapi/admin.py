@@ -24,6 +24,22 @@ class SeafileAdmin(object):
         elif result.status_code == 200:
             raise UserExisted()
 
+    def update_user(self, email, **kwargs):
+        """Update a user account. Any of the following keys must be provided:
+            - password, is_staff, is_active, name, note, storage."""
+        url = '/api2/accounts/{}/'.format(email)
+        params = {}
+        attrs = ['password', 'is_active', 'is_staff', 'name', 'note', 'storage']
+        for attr in attrs:
+            if attr in kwargs:
+                val = kwargs.pop(attr)
+                if val is not None:
+                    params[attr] = val
+        result = self.client.put(url, data=params, expected=[200, 201, 400])
+        if result.status_code == 400:
+            raise DoesNotExist('User {}'.format(email))
+        return True
+
     def delete(self, email):
         url = '/api2/accounts/{}/'.format(email)
         result = self.client.delete(url, expected=[200, 202])
