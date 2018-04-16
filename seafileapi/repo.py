@@ -155,12 +155,12 @@ class Repo(object):
 
     ## Operations only the repo owner can do:
 
-    def update(self, name=None):
+    def update(self):
         """Update the name and/or description of this repo. Only the repo owner can do
         this.
         """
         url = '/api2/repos/' + self.id + '/?op=rename'
-        params = dict(repo_name=self.name, repo_desc=self.desc)
+        params = dict(repo_name=self.name)
         self.client.post(url, data=params)
 
     def get_settings(self):
