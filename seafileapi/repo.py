@@ -198,6 +198,17 @@ class Repo(object):
         '''
         return self._share_folder_operation('unshare',path, share_type=share_type, users=users, group_id=group_id, permission=permission)
 
+    def list_shares(self, path=None, share_type=None):
+        url = '/api2/repos/' + self.id + '/dir/shared_items/?' + urlencode(dict(p=path))
+        if path is None:
+            path = '/'
+        if share_type not in ['user', 'group', 'public']:
+            raise ValueError('Invalid share type: {}'.format(share_type))
+
+        params = {'p': path, 'share_type': share_type}
+        resp = self.client.get(url, params=params, expected=[200]).json()
+        return resp
+
     def _share_folder_operation(self, operation, path, share_type, users=None, group_id=None, permission=None):
         """Manage sharing on this folder
         :param operation: Can be 'share' or 'unshare'
