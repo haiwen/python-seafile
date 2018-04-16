@@ -14,6 +14,9 @@ class OperationError(Exception):
     """Expcetion to raise when an opeartion is failed"""
     pass
 
+class UserExisted(Exception):
+    pass
+
 class GroupExisted(Exception):
     pass
 
