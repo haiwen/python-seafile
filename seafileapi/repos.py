@@ -22,8 +22,11 @@ class Repos(object):
         repo_json = self.client.get('/api2/repos/' + repo_id).json()
         return Repo.from_json(self.client, repo_json)
 
-    def list_repos(self):
-        repos_json = self.client.get('/api2/repos/').json()
+    def list_repos(self, type=None):
+        params = {}
+        if type is not None:
+            params['type'] = type
+        repos_json = self.client.get('/api2/repos/', params=params).json()
         return  [Repo.from_json(self.client, j) for j in repos_json]
 
     @raise_does_not_exist('The requested library does not exist')
