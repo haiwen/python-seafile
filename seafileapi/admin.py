@@ -9,6 +9,13 @@ class SeafileAdmin(object):
     def lists_users(self, maxcount=100):
         pass
 
+    def search_user(self, filter):
+        """Search for user accounts, to be used by autocompleters"""
+        params = {'q': filter}
+        response = self.client.get('/api2/search-user', params=params)
+        response_json = response.json()
+        return response_json['users']
+
     def get_user(self, email):
         account_json = self.client.get('/api2/accounts/{}/'.format(email)).json()
         return Account.from_json(self.client, account_json)
