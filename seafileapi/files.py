@@ -76,7 +76,7 @@ class _SeafDirentBase(object):
         """
         if dst_repo_id is None:
             dst_repo_id = self.repo.id
-        
+
         dirent_type = 'dir' if self.isdir else 'file'
         resp = self._copy_move_task('copy', dirent_type, dst_dir, dst_repo_id)
         return resp.status_code == 200
@@ -86,7 +86,7 @@ class _SeafDirentBase(object):
         """
         if dst_repo_id is None:
             dst_repo_id = self.repo.id
-        
+
         dirent_type = 'dir' if self.isdir else 'file'
         resp = self._copy_move_task('move', dirent_type, dst_dir, dst_repo_id)
         succeeded = resp.status_code == 200
@@ -121,6 +121,16 @@ class SeafDir(_SeafDirentBase):
             self.load_entries()
 
         return self.entries
+
+    def share_to_user(self, email, permission):
+        url = '/api2/repos/%s/dir/shared_items/' % self.repo.id + querystr(p=self.path)
+        putdata = {
+            'share_type': 'user',
+            'username': email,
+            'permission': permission
+        }
+        resp = self.client.put(url, data=putdata)
+        return resp.status_code == 200
 
     def create_empty_file(self, name):
         """Create a new empty file in this dir.
@@ -210,7 +220,7 @@ class SeafDir(_SeafDirentBase):
         if self.entries is None:
             self.load_entries()
         return len(self.entries) if self.entries is not None else 0
-    
+
     def __str__(self):
         return 'SeafDir[repo=%s,path=%s,entries=%s]' % \
             (self.repo.id[:6], self.path, self.num_entries)
@@ -219,6 +229,7 @@ class SeafDir(_SeafDirentBase):
 
 class SeafFile(_SeafDirentBase):
     isdir = False
+
     def update(self, fileobj):
         """Update the content of this file"""
         pass
