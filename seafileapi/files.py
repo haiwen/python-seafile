@@ -2,6 +2,7 @@ import io
 import os
 import posixpath
 import re
+import sys
 from seafileapi.utils import querystr, utf8lize
 
 ZERO_OBJ_ID = '0000000000000000000000000000000000000000'
@@ -167,12 +168,17 @@ class SeafDir(_SeafDirentBase):
         Return a :class:`SeafFile` object of the newly uploaded file.
         """
         if isinstance(fileobj, str):
-            fileobj = io.BytesIO(fileobj)
+            if sys.version_info.major > 2:
+                fileobj = io.BytesIO(bytes(fileobj, 'UTF-8'))
+            else:
+                fileobj = io.BytesIO(fileobj)
+
         upload_url = self._get_upload_link()
         files = {
             'file': (filename, fileobj),
             'parent_dir': self.path,
         }
+        # print(files)
         self.client.post(upload_url, files=files)
         return self.repo.get_file(posixpath.join(self.path, filename))
 

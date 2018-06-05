@@ -2,6 +2,9 @@ import requests
 from seafileapi.utils import urljoin
 from seafileapi.exceptions import ClientHttpError
 from seafileapi.repos import Repos
+from seafileapi.group import Groups
+from seafileapi.user import Users
+
 
 class SeafileApiClient(object):
     """Wraps seafile web api"""
@@ -15,6 +18,7 @@ class SeafileApiClient(object):
 
         self.repos = Repos(self)
         self.groups = Groups(self)
+        self.users = Users(self)
 
         if token is None:
             self._get_token()
@@ -60,18 +64,12 @@ class SeafileApiClient(object):
         expected = kwargs.pop('expected', 200)
         if not hasattr(expected, '__iter__'):
             expected = (expected, )
+
         resp = requests.request(method, url, *args, **kwargs)
         if resp.status_code not in expected:
             msg = 'Expected %s, but get %s' % \
                   (' or '.join(map(str, expected)), resp.status_code)
+            msg += '\n' + resp.content.decode('utf-8')
             raise ClientHttpError(resp.status_code, msg)
 
         return resp
-
-
-class Groups(object):
-    def __init__(self, client):
-        pass
-
-    def create_group(self, name):
-        pass

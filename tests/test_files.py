@@ -1,6 +1,7 @@
 #coding: UTF-8
 
 import os
+import sys
 import pytest
 
 from tests.utils import randstring, datafile, filesize
@@ -59,10 +60,16 @@ def test_upload_file(repo, parentpath):
 
     fname = 'aliedit.tar.gz'
     fpath = datafile(fname)
-    with open(fpath, 'r') as fp:
+
+    if sys.version_info.major > 2:
+        mode = 'rb'
+    else:
+        mode = 'r'
+        
+    with open(fpath, mode) as fp:
         testfile = parentdir.upload(fp, fname)
 
-    with open(fpath, 'r') as fp:
+    with open(fpath, mode) as fp:
         fcontent = fp.read()
 
     assert testfile.size == filesize(fpath)
@@ -85,7 +92,11 @@ def test_upload_string_as_file_content(repo):
     # test pass as string as file content when upload file
     rootdir = repo.get_dir('/')
     fname = u'testfile-%s' % randstring()
-    fcontent = 'line 1\nline 2\n\r'
+    if sys.version_info.major > 2:
+        fcontent = b'line 1\nline 2\n\r'
+    else:
+        fcontent = 'line 1\nline 2\n\r'
+        
     f = rootdir.upload(fcontent, fname)
     assert f.name == fname
     assert f.get_content() == fcontent
