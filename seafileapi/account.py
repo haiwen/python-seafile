@@ -14,6 +14,9 @@ class Account(object):
         self.usage = usage
         self.total = total
 
+    def __str__(self):
+        return 'SeafileAccount<id={}, email={}, usage={}, total={}>'.format(self.id, self.email, self.usage, self.total)
+
     @classmethod
     def from_json(cls, client, account_json):
         account_json = utf8lize(account_json)

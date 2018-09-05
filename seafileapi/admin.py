@@ -9,6 +9,18 @@ class SeafileAdmin(object):
     def lists_users(self, maxcount=100):
         pass
 
+    def list_accounts(self, start=0, limit=100, scope=None):
+        """
+        Return a list of :class:`Account` objects. To retrieve all users, just set both start and limit to -1.
+        :param start: (default to 0)
+        :param limit: (default to 100)
+        :param scope: (default None, accepted values: 'LDAP' or 'DB' or 'LDAPImport')
+        :return:
+        """
+        accounts = self.client.get('/api2/accounts/', params={'start': start, 'limit': limit, 'scope': scope}).json()
+        #return [Account.from_json(self.client, account) for account in accounts]
+        return accounts
+
     def search_user(self, filter):
         """Search for user accounts, to be used by autocompleters"""
         params = {'q': filter}
