@@ -15,7 +15,8 @@ class Account(object):
         self.total = total
 
     def __str__(self):
-        return 'SeafileAccount<id={}, email={}, usage={}, total={}>'.format(self.id, self.email, self.usage, self.total)
+        return 'SeafileAccount<id={}, email={}, usage={}, total={}, is_active={}>'.format(
+            self.id, self.email, self.usage, self.total, self.is_active)
 
     @classmethod
     def from_json(cls, client, account_json):
