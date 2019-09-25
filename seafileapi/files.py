@@ -2,7 +2,7 @@ import io
 import os
 import posixpath
 import re
-from seafileapi.utils import querystr, utf8lize
+from seafileapi.utils import querystr
 
 ZERO_OBJ_ID = '0000000000000000000000000000000000000000'
 
@@ -208,7 +208,6 @@ class SeafDir(_SeafDirentBase):
         self.entries = [self._load_dirent(entry_json) for entry_json in dirents_json]
 
     def _load_dirent(self, dirent_json):
-        dirent_json = utf8lize(dirent_json)
         path = posixpath.join(self.path, dirent_json['name'])
         if dirent_json['type'] == 'file':
             return SeafFile(self.repo, path, dirent_json['id'], dirent_json['size'])
