@@ -52,7 +52,7 @@ class _SeafDirentBase(object):
                 new_dirent = self.repo.get_dir(os.path.join(os.path.dirname(self.path), newname))
             else:
                 new_dirent = self.repo.get_file(os.path.join(os.path.dirname(self.path), newname))
-            for key in self.__dict__.keys():
+            for key in list(self.__dict__.keys()):
                 self.__dict__[key] = new_dirent.__dict__[key]
         return succeeded
 
@@ -97,7 +97,7 @@ class _SeafDirentBase(object):
                 new_dirent = new_repo.get_dir(dst_path)
             else:
                 new_dirent = new_repo.get_file(dst_path)
-            for key in self.__dict__.keys():
+            for key in list(self.__dict__.keys()):
                 self.__dict__[key] = new_dirent.__dict__[key]
         return succeeded
 
