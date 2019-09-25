@@ -37,7 +37,7 @@ def raise_does_not_exist(msg):
     return decorator
 
 def to_utf8(obj):
-    if isinstance(obj, unicode):
+    if isinstance(obj, str):
         return obj.encode('utf-8')
     return obj
 
@@ -51,7 +51,7 @@ def utf8lize(obj):
     if isinstance(obj, list):
         return [to_utf8(x) for x in ob]
 
-    if instance(obj, unicode):
+    if instance(obj, str):
         return obj.encode('utf-8')
 
     return obj
