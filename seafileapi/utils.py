@@ -1,7 +1,7 @@
 import string
 import random
 from functools import wraps
-from urllib import urlencode
+from urllib.parse import urlencode
 from seafileapi.exceptions import ClientHttpError, DoesNotExist
 
 def randstring(length=0):
