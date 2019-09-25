@@ -28,7 +28,7 @@ def raise_does_not_exist(msg):
         def wrapped(*args, **kwargs):
             try:
                 return func(*args, **kwargs)
-            except ClientHttpError, e:
+            except ClientHttpError as e:
                 if e.code == 404:
                     raise DoesNotExist(msg)
                 else:
