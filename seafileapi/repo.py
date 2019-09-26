@@ -1,5 +1,4 @@
-from urllib import urlencode
-from seafileapi.utils import utf8lize
+from urllib.parse import urlencode
 from seafileapi.files import SeafDir, SeafFile
 from seafileapi.utils import raise_does_not_exist
 
@@ -18,7 +17,6 @@ class Repo(object):
 
     @classmethod
     def from_json(cls, client, repo_json):
-        repo_json = utf8lize(repo_json)
 
         repo_id = repo_json['id']
         repo_name = repo_json['name']

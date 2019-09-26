@@ -1,7 +1,7 @@
 import string
 import random
 from functools import wraps
-from urllib import urlencode
+from urllib.parse import urlencode
 from seafileapi.exceptions import ClientHttpError, DoesNotExist
 
 def randstring(length=0):
@@ -28,7 +28,7 @@ def raise_does_not_exist(msg):
         def wrapped(*args, **kwargs):
             try:
                 return func(*args, **kwargs)
-            except ClientHttpError, e:
+            except ClientHttpError as e:
                 if e.code == 404:
                     raise DoesNotExist(msg)
                 else:
@@ -37,7 +37,7 @@ def raise_does_not_exist(msg):
     return decorator
 
 def to_utf8(obj):
-    if isinstance(obj, unicode):
+    if isinstance(obj, str):
         return obj.encode('utf-8')
     return obj
 
@@ -46,12 +46,12 @@ def querystr(**kwargs):
 
 def utf8lize(obj):
     if isinstance(obj, dict):
-        return {k: to_utf8(v) for k, v in obj.iteritems()}
+        return {k: to_utf8(v) for k, v in obj.items()}
 
     if isinstance(obj, list):
         return [to_utf8(x) for x in ob]
 
-    if instance(obj, unicode):
+    if instance(obj, str):
         return obj.encode('utf-8')
 
     return obj

@@ -84,7 +84,7 @@ def test_upload_file(repo, parentpath):
 def test_upload_string_as_file_content(repo):
     # test pass as string as file content when upload file
     rootdir = repo.get_dir('/')
-    fname = u'testfile-%s' % randstring()
+    fname = 'testfile-%s' % randstring()
     fcontent = 'line 1\nline 2\n\r'
     f = rootdir.upload(fcontent, fname)
     assert f.name == fname
