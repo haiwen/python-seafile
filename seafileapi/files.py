@@ -185,7 +185,7 @@ class SeafDir(_SeafDirentBase):
         Return a :class:`SeafFile` object of the newly uploaded file.
         """
         name = name or os.path.basename(filepath)
-        with open(filepath, 'r') as fp:
+        with open(filepath, 'rb') as fp:
             return self.upload(fp, name)
 
     def _get_upload_link(self):
