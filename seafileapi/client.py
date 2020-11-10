@@ -82,17 +82,6 @@ class SeafileApiClient(object):
 
         return resp
 
-def read_in_chunks(path):
-    # If you're going to chunk anyway, doesn't it seem like smaller ones than this would be a good idea?
-    chunk_size = 30720 * 30720
-    # I don't know how correct this is; if it doesn't work as expected, you'll need to debug
-    with open(path, 'rb') as file_object:
-        while True:
-            data = file_object.read(chunk_size)
-            if not data:
-                break
-            yield data
-
 
 class Groups(object):
     def __init__(self, client):
