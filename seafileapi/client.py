@@ -2,6 +2,11 @@ import requests
 from seafileapi.utils import urljoin
 from seafileapi.exceptions import ClientHttpError
 from seafileapi.repos import Repos
+from os.path import getsize
+
+from requests_toolbelt import MultipartEncoder
+
+MAX_SIZE = 2147483647 #https://github.com/psf/requests/issues/2717
 
 class SeafileApiClient(object):
     """Wraps seafile web api"""
@@ -60,6 +65,15 @@ class SeafileApiClient(object):
         expected = kwargs.pop('expected', 200)
         if not hasattr(expected, '__iter__'):
             expected = (expected, )
+        if 'files' in kwargs and getsize(kwargs['files']['file'][1].name) > MAX_SIZE:
+            #see https://github.com/psf/requests/issues/2717#issuecomment-724725392
+            m = MultipartEncoder(
+                fields={'file': (kwargs['files']['file'][1].name, open(kwargs['files']['file'][1].name, 'rb'), 'text/plain'),
+                        'parent_dir': kwargs['files']['parent_dir']}
+            )
+            del kwargs['files']
+            kwargs['data'] = m
+            kwargs['headers']['Content-Type'] =  m.content_type
         resp = requests.request(method, url, *args, **kwargs)
         if resp.status_code not in expected:
             msg = 'Expected %s, but get %s' % \
@@ -67,6 +81,17 @@ class SeafileApiClient(object):
             raise ClientHttpError(resp.status_code, msg)
 
         return resp
+
+def read_in_chunks(path):
+    # If you're going to chunk anyway, doesn't it seem like smaller ones than this would be a good idea?
+    chunk_size = 30720 * 30720
+    # I don't know how correct this is; if it doesn't work as expected, you'll need to debug
+    with open(path, 'rb') as file_object:
+        while True:
+            data = file_object.read(chunk_size)
+            if not data:
+                break
+            yield data
 
 
 class Groups(object):
