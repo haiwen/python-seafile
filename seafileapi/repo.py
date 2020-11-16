@@ -1,6 +1,7 @@
 from urllib.parse import urlencode
-from seafileapi.files import SeafDir, SeafFile
-from seafileapi.utils import raise_does_not_exist
+from .utils import utf8lize
+from .files import SeafDir, SeafFile
+from .utils import raise_does_not_exist
 
 class Repo(object):
     """
@@ -17,6 +18,7 @@ class Repo(object):
 
     @classmethod
     def from_json(cls, client, repo_json):
+        repo_json = utf8lize(repo_json)
 
         repo_id = repo_json['id']
         repo_name = repo_json['name']
@@ -30,8 +32,9 @@ class Repo(object):
         return 'w' not in self.perm
 
     @raise_does_not_exist('The requested file does not exist')
-    def get_file(self, path):
+    def get_file(self, path, parent_dir=None):
         """Get the file object located in `path` in this repo.
+        param: parent_dir: path of parent directory. in case None, parent_dir is "/"
 
         Return a :class:`SeafFile` object
         """
@@ -40,7 +43,14 @@ class Repo(object):
         query = '?' + urlencode(dict(p=path))
         file_json = self.client.get(url + query).json()
 
-        return SeafFile(self, path, file_json['id'], file_json['size'])
+        return SeafFile(
+            repo=self, 
+            id=file_json['id'], 
+            name=file_json['name'],
+            type='file', 
+            parent_dir='/' if parent_dir is None else parent_dir, 
+            size=file_json['size']
+        )
 
     @raise_does_not_exist('The requested dir does not exist')
     def get_dir(self, path):
@@ -57,6 +67,39 @@ class Repo(object):
         dir = SeafDir(self, path, dir_id)
         dir.load_entries(dir_json)
         return dir
+
+    # @raise_does_not_exist('The requested dir does not exist')
+    def get_items(self, type=None, recursive = False):
+        """Get the SeafDir and SeafFile objects located in this repo.
+
+        Return a :class:`SeafDir` object
+        """
+        # assert path.startswith('/')
+        url = '/api2/repos/%s/dir/' % self.id
+        query = '?' + urlencode(dict(t=type if type else '', recursive=1 if recursive else 0))
+        resp = self.client.get(url + query).json()
+        data = []
+        for j in resp:
+            if j['type'] == 'file':
+                data.append(SeafFile.from_json(repo=self, dir_json=j))
+            else:
+                data.append(SeafDir.from_json(repo=self, dir_json=j))
+        return data
+
+    def get_files(self, oid=None, recursive = True):
+        """
+        get all files in a repository.
+        input:  oid - object id. The id of directory in this repo in case we want to find files in a specific dir
+                recursive - find file recursive
+        """
+        url = '/api2/repos/%s/dir/' % self.id
+        query = '?' + urlencode(dict(
+            oid='' if oid is None else oid, 
+            t='f', 
+            recursive=1 if recursive == True else 0))
+        resp = self.client.get(url + query).json()
+
+        return [SeafFile.from_json(repo=self, dir_json=j) for j in resp]
 
     def delete(self):
         """Remove this repo. Only the repo owner can do this"""
