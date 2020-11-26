@@ -1,10 +1,8 @@
 import io
 import os
-from os import path
 import posixpath
 import re
 from .utils import querystr, utf8lize, urlencode, urljoin
-import urllib.parse
 
 ZERO_OBJ_ID = '0000000000000000000000000000000000000000'
 
@@ -15,19 +13,21 @@ class _SeafDirentBase(object):
     """
     isdir = None
 
-    def __init__(self, repo, id, name, type, parent_dir=None, size=None):
+    def __init__(self, repo, name, type, id=None, parent_dir=None, size=None):
         """
-        :param:`path` the full path of this entry within its repo, like
-        "/documents/example.md"
-
+        :param:`repo` repository object
+        :param:'name' name of file or directory
+        :param:'type' dir or file
+        :param:'id' id of object
+        :param:'parent_dir' path of upstream directory. If there is no upstream dir, parent_dir should be '/'
         :param:`size` The size of a file. It should be zero for a dir.
         """
         self.repo = repo
-        self.path = '/'+ urllib.parse.quote(name)
-        self.id = id
+        self.path = '/'+ name
+        self.id = id if id is not None else ZERO_OBJ_ID
         self.name=name
-        self.parent_dir = parent_dir
-        self.type=type
+        self.parent_dir = parent_dir if parent_dir is not None else '/'
+        self.type = type
         self.size = size
         self.full_path = urljoin(self.parent_dir, self.path)
 
@@ -37,24 +37,16 @@ class _SeafDirentBase(object):
 
     @classmethod
     def from_json(cls, repo, dir_json):
-        """
-        load object data from json
-
-        """
         dir_json = utf8lize(dir_json)
 
         repo=repo
-        id = dir_json['id']
         name = dir_json['name']
+        id = dir_json['id']
         parent_dir = dir_json.get('parent_dir', '/')
         type = dir_json['type']
         size = dir_json.get('size', 0)
 
-        return cls(repo, id, name, type, parent_dir, size)
-
-    # @property
-    # def name(self):
-    #     return posixpath.basename(self.path)
+        return cls(repo, name, type, id, parent_dir, size)
 
     def list_revisions(self):
         pass
@@ -66,7 +58,8 @@ class _SeafDirentBase(object):
         return resp
 
     def rename(self, newname):
-        """Change file/folder name to newname
+        """
+        Change file/folder name to newname
         """
         suffix = 'dir' if self.isdir else 'file'
         url = '/api2/repos/%s/%s/' % (self.repo.id, suffix) + querystr(p=self.path, reloaddir='true')
@@ -151,11 +144,10 @@ class _SeafDirentBase(object):
 
     def _get_upload_link(self):
         """
-        Get file or folder upload link
+        get upload link of a file or directory. If object is a file, the file will be uploaded to parent dir. 
+        If object is a directory, upload link will be created for itself
         """
         url = '/api2/repos/%s/upload-link/' % self.repo.id
-        # param "p" is the path of folder in which we want to upload to
-        # in case we want to get upload link from a file in this folder, we can take its parent_dir path as param "p"
         query = '?'+urlencode(dict(p=self.parent_dir if self.type=='file' else self.full_path))
         resp = self.repo.client.get(url+query)
         return re.match(r'"(.*)"', resp.text).group(1)
@@ -180,6 +172,11 @@ class SeafDir(_SeafDirentBase):
         return self.entries
 
     def share_to_user(self, email, permission):
+        """
+            share dir to other user.
+            :param: email of other user
+            :param: permission should be 'r' for read and 'rw' for read and write
+        """
         url = '/api2/repos/%s/dir/shared_items/' % self.repo.id + querystr(p=self.path)
         putdata = {
             'share_type': 'user',
@@ -254,11 +251,6 @@ class SeafDir(_SeafDirentBase):
         pass
 
     def load_entries(self, dirents_json=None, type=None):
-        """
-        Load entries into a folder
-        param: dirents_json: json data of the folder. Json data contains sub folders and files
-        param: type: should be "file" or "dir" in case we want to load data in a folder preciselly
-        """
         if dirents_json is None:
             url = '/api2/repos/%s/dir/' % self.repo.id
             # oid: object id-id of upstream dir
@@ -274,11 +266,10 @@ class SeafDir(_SeafDirentBase):
     def _load_dirent(self, dirent_json):
         dirent_json = utf8lize(dirent_json)
         path = posixpath.join(self.path, dirent_json['name'])
-        # return _SeafDirentBase(self.repo, dirent_json['id'], dirent_json['name'],dirent_json['type'], dirent_json['parent_dir'], dirent_json.get('size', 0))
         if dirent_json['type'] == 'file':
-            return SeafFile(self.repo, dirent_json['id'], dirent_json['name'], dirent_json['type'], dirent_json['parent_dir'], dirent_json.get('size', 0))
+            return SeafFile(self.repo, dirent_json['name'],dirent_json['type'], dirent_json['id'], dirent_json['parent_dir'], dirent_json.get('size', 0))
         else:
-            return SeafDir(self.repo, dirent_json['id'], dirent_json['name'], dirent_json['type'], dirent_json['parent_dir'], dirent_json.get('size', 0))
+            return SeafDir(self.repo, dirent_json['name'],dirent_json['type'], dirent_json['id'], dirent_json['parent_dir'], dirent_json.get('size', 0))
 
     @property
     def num_entries(self):
@@ -304,7 +295,7 @@ class SeafFile(_SeafDirentBase):
             (self.repo.id[:6], self.path, self.size)
 
     def _get_download_link(self):
-        url = '/api2/repos/%s/file/' % self.repo.id + querystr(p=self.full_path)
+        url = '/api2/repos/%s/file/' % self.repo.id + querystr(p=self.full_path,reuse=1)
         resp = self.repo.client.get(url)
         return re.match(r'"(.*)"', resp.text).group(1)
 
