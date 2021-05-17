@@ -1,7 +1,12 @@
 import requests
-from seafileapi.utils import urljoin
-from seafileapi.exceptions import ClientHttpError
-from seafileapi.repos import Repos
+from python_seafile.utils import urljoin
+from python_seafile.exceptions import ClientHttpError
+from python_seafile.repos import Repos
+from os.path import getsize
+
+from requests_toolbelt import MultipartEncoder
+
+MAX_SIZE = 2147483647 #https://github.com/psf/requests/issues/2717
 
 class SeafileApiClient(object):
     """Wraps seafile web api"""
@@ -60,6 +65,15 @@ class SeafileApiClient(object):
         expected = kwargs.pop('expected', 200)
         if not hasattr(expected, '__iter__'):
             expected = (expected, )
+        if 'files' in kwargs and hasattr(kwargs['files']['file'][1], 'name') and getsize(kwargs['files']['file'][1].name) > MAX_SIZE:
+            #see https://github.com/psf/requests/issues/2717#issuecomment-724725392
+            m = MultipartEncoder(
+                fields={'file': (kwargs['files']['file'][1].name, open(kwargs['files']['file'][1].name, 'rb'), 'text/plain'),
+                        'parent_dir': kwargs['files']['parent_dir']}
+            )
+            del kwargs['files']
+            kwargs['data'] = m
+            kwargs['headers']['Content-Type'] =  m.content_type
         resp = requests.request(method, url, *args, **kwargs)
         if resp.status_code not in expected:
             msg = 'Expected %s, but get %s' % \

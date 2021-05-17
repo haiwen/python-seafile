@@ -1,6 +1,6 @@
 from urllib.parse import urlencode
-from seafileapi.files import SeafDir, SeafFile
-from seafileapi.utils import raise_does_not_exist
+from python_seafile.files import SeafDir, SeafFile
+from python_seafile.utils import raise_does_not_exist
 
 class Repo(object):
     """

@@ -2,7 +2,7 @@ import io
 import os
 import posixpath
 import re
-from seafileapi.utils import querystr
+from python_seafile.utils import querystr
 
 ZERO_OBJ_ID = '0000000000000000000000000000000000000000'
 
@@ -185,7 +185,7 @@ class SeafDir(_SeafDirentBase):
         Return a :class:`SeafFile` object of the newly uploaded file.
         """
         name = name or os.path.basename(filepath)
-        with open(filepath, 'r') as fp:
+        with open(filepath, 'rb') as fp:
             return self.upload(fp, name)
 
     def _get_upload_link(self):

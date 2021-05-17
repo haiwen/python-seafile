@@ -1,5 +1,5 @@
-from seafileapi.repo import Repo
-from seafileapi.utils import raise_does_not_exist
+from python_seafile.repo import Repo
+from python_seafile.utils import raise_does_not_exist
 
 class Repos(object):
     def __init__(self, client):
@@ -20,6 +20,15 @@ class Repos(object):
         """
         repo_json = self.client.get('/api2/repos/' + repo_id).json()
         return Repo.from_json(self.client, repo_json)
+
+    @raise_does_not_exist('The requested library does not exist')
+    def get_default_repo(self):
+        """Get the default repo.
+
+        Raises :exc:`DoesNotExist` if no default repo exists.
+        """
+        repo_json = self.client.get('/api2/default-repo').json()
+        return self.get_repo(repo_json['repo_id'])
 
     def list_repos(self):
         repos_json = self.client.get('/api2/repos/').json()
