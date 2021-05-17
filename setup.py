@@ -1,10 +1,21 @@
 from setuptools import setup, find_packages
+import re
 
-__version__ = '0.1.2'
+
+def get_version():
+    #https://stackoverflow.com/a/7071358/5122790
+    VERSIONFILE="seafileapi/_version.py"
+    verstrline = open(VERSIONFILE, "rt").read()
+    VSRE = r"^__version__ = ['\"]([^'\"]*)['\"]"
+    mo = re.search(VSRE, verstrline, re.M)
+    if mo:
+        return mo.group(1)
+    else:
+        raise RuntimeError("Unable to find version string in %s." % (VERSIONFILE,))
 
 
 setup(name='python-seafile',
-      version=__version__,
+      version=get_version(),
       license='BSD',
       description='Client interface for Seafile Web API',
       author='Shuai Lin',
