@@ -14,7 +14,7 @@ def get_version():
         raise RuntimeError("Unable to find version string in %s." % (VERSIONFILE,))
 
 
-setup(name='python-seafile',
+setup(name='python_seafile',
       version=get_version(),
       license='BSD',
       description='Client interface for Seafile Web API',
