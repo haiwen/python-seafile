@@ -65,7 +65,7 @@ class SeafileApiClient(object):
         expected = kwargs.pop('expected', 200)
         if not hasattr(expected, '__iter__'):
             expected = (expected, )
-        if 'files' in kwargs and getsize(kwargs['files']['file'][1].name) > MAX_SIZE:
+        if 'files' in kwargs and hasattr(kwargs['files']['file'][1], 'name') and getsize(kwargs['files']['file'][1].name) > MAX_SIZE:
             #see https://github.com/psf/requests/issues/2717#issuecomment-724725392
             m = MultipartEncoder(
                 fields={'file': (kwargs['files']['file'][1].name, open(kwargs['files']['file'][1].name, 'rb'), 'text/plain'),
