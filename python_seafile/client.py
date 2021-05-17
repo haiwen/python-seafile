@@ -1,7 +1,7 @@
 import requests
-from seafileapi.utils import urljoin
-from seafileapi.exceptions import ClientHttpError
-from seafileapi.repos import Repos
+from python_seafile.utils import urljoin
+from python_seafile.exceptions import ClientHttpError
+from python_seafile.repos import Repos
 from os.path import getsize
 
 from requests_toolbelt import MultipartEncoder

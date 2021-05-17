@@ -49,9 +49,9 @@
 
 ```python
 
-	import seafileapi
+	import python_seafile
 	
-	client = seafileapi.connect('http://127.0.0.1:8000', 'test@admin.com', 'password')
+	client = python_seafile.connect('http://127.0.0.1:8000', 'test@admin.com', 'password')
 ```
 
 **Return Type**
@@ -69,9 +69,9 @@ A Client Object
 
 ```python
 
-    import seafileapi
+    import python_seafile
 	
-    client = seafileapi.connect('http://127.0.0.1:8000', 'test@admin.com', 'password')
+    client = python_seafile.connect('http://127.0.0.1:8000', 'test@admin.com', 'password')
     repo = client.repos.get_repo('09c16e2a-ff1a-4207-99f3-1351c3f1e507')
 ```
 
@@ -93,9 +93,9 @@ None
 
 ```python
 
-    import seafileapi
+    import python_seafile
 
-    client = seafileapi.connect('http://127.0.0.1:8000', 'test@admin.com', 'password')
+    client = python_seafile.connect('http://127.0.0.1:8000', 'test@admin.com', 'password')
     repo = client.repos.get_repo('09c16e2a-ff1a-4207-99f3-1351c3f1e507')
     is_readonly = repo.is_readonly()
 ```
@@ -114,18 +114,18 @@ None
 
 ```python
 
-    import seafileapi
+    import python_seafile
 	
-    client = seafileapi.connect('http://127.0.0.1:8000', 'test@admin.com', 'password')
+    client = python_seafile.connect('http://127.0.0.1:8000', 'test@admin.com', 'password')
     repo_list = client.repos.list_repos()
 
     print repo_list
-    Out >>> [<seafileapi.repo.Repo at 0x7f1bb0769750>,
-             <seafileapi.repo.Repo at 0x7f1bb07693d0>,
-             <seafileapi.repo.Repo at 0x7f1bb0769a50>,
-             <seafileapi.repo.Repo at 0x7f1bb077cc10>,
-             <seafileapi.repo.Repo at 0x7f1bb077cfd0>,
-             <seafileapi.repo.Repo at 0x7f1bb077ca10>]
+    Out >>> [<python_seafile.repo.Repo at 0x7f1bb0769750>,
+             <python_seafile.repo.Repo at 0x7f1bb07693d0>,
+             <python_seafile.repo.Repo at 0x7f1bb0769a50>,
+             <python_seafile.repo.Repo at 0x7f1bb077cc10>,
+             <python_seafile.repo.Repo at 0x7f1bb077cfd0>,
+             <python_seafile.repo.Repo at 0x7f1bb077ca10>]
 
     print [repo.name for repo in repo_list]
     Out >>> ['alphabox',
@@ -151,9 +151,9 @@ A list of Libraries Object
 
 ```python
 
-    import seafileapi
+    import python_seafile
 	
-    client = seafileapi.connect('http://127.0.0.1:8000', 'test@admin.com', 'password')
+    client = python_seafile.connect('http://127.0.0.1:8000', 'test@admin.com', 'password')
     repo = client.repos.create_repo('test_repo')
 ```
 
@@ -172,9 +172,9 @@ None
 
 ```python
 
-    import seafileapi
+    import python_seafile
 	
-    client = seafileapi.connect('http://127.0.0.1:8000', 'test@admin.com', 'password')
+    client = python_seafile.connect('http://127.0.0.1:8000', 'test@admin.com', 'password')
     repo = client.repos.get_repo('09c16e2a-ff1a-4207-99f3-1351c3f1e507')
     repo.delete()
 ```
@@ -194,9 +194,9 @@ None
 
 ```python
 
-    import seafileapi
+    import python_seafile
 	
-    client = seafileapi.connect('http://127.0.0.1:8000', 'test@admin.com', 'password')
+    client = python_seafile.connect('http://127.0.0.1:8000', 'test@admin.com', 'password')
     repo = client.repos.get_repo('09c16e2a-ff1a-4207-99f3-1351c3f1e507')
     seafdir = repo.get_dir('/root')
     print seafdir.__dict__
@@ -204,7 +204,7 @@ None
              'entries': [],
              'id': 'c3742dd86004d51c358845fa3178c87e4ab3aa60',
              'path': '/root',
-             'repo': <seafileapi.repo.Repo at 0x7f2af56b1490>,
+             'repo': <python_seafile.repo.Repo at 0x7f2af56b1490>,
              'size': 0}
 ```
 
@@ -225,9 +225,9 @@ A Directory Object
 
 ```python
 
-    import seafileapi
+    import python_seafile
 	
-    client = seafileapi.connect('http://127.0.0.1:8000', 'test@admin.com', 'password')
+    client = python_seafile.connect('http://127.0.0.1:8000', 'test@admin.com', 'password')
     repo = client.repos.get_repo('09c16e2a-ff1a-4207-99f3-1351c3f1e507')
     seafdir = repo.get_dir('/root')
 	
@@ -265,9 +265,9 @@ List of Directory and File
 
 ```python
 
-    import seafileapi
+    import python_seafile
 	
-    client = seafileapi.connect('http://127.0.0.1:8000', 'test@admin.com', 'password')
+    client = python_seafile.connect('http://127.0.0.1:8000', 'test@admin.com', 'password')
     repo = client.repos.get_repo('09c16e2a-ff1a-4207-99f3-1351c3f1e507')
     seafdir = repo.get_dir('/root')
 	
@@ -287,9 +287,9 @@ None
 
 ```python
 
-    import seafileapi
+    import python_seafile
 	
-    client = seafileapi.connect('http://127.0.0.1:8000', 'test@admin.com', 'password')
+    client = python_seafile.connect('http://127.0.0.1:8000', 'test@admin.com', 'password')
     repo = client.repos.get_repo('09c16e2a-ff1a-4207-99f3-1351c3f1e507')
     seafdir = repo.get_dir('/root')
 	
@@ -312,9 +312,9 @@ A Response Instance
 
 ```python
 
-    import seafileapi
+    import python_seafile
 	
-    client = seafileapi.connect('http://127.0.0.1:8000', 'test@admin.com', 'password')
+    client = python_seafile.connect('http://127.0.0.1:8000', 'test@admin.com', 'password')
     repo = client.repos.get_repo('09c16e2a-ff1a-4207-99f3-1351c3f1e507')
     seaffile = repo.get_file('/root/test.md')
 
@@ -322,7 +322,7 @@ A Response Instance
     Out >>> {'client': SeafileApiClient[server=http://127.0.0.1:8000, user=admin@admin.com],
              'id': '0000000000000000000000000000000000000000',
              'path': '/root/test.md',
-             'repo': <seafileapi.repo.Repo at 0x7f2af56b1490>,
+             'repo': <python_seafile.repo.Repo at 0x7f2af56b1490>,
              'size': 0}
 ```
 
@@ -344,9 +344,9 @@ None
 
 ```python
 
-    import seafileapi
+    import python_seafile
 	
-    client = seafileapi.connect('http://127.0.0.1:8000', 'test@admin.com', 'password')
+    client = python_seafile.connect('http://127.0.0.1:8000', 'test@admin.com', 'password')
     repo = client.repos.get_repo('09c16e2a-ff1a-4207-99f3-1351c3f1e507')
     seaffile = repo.get_file('/root/test.md')
 	
@@ -366,9 +366,9 @@ File Content
 
 ```python
 
-    import seafileapi
+    import python_seafile
 	
-    client = seafileapi.connect('http://127.0.0.1:8000', 'test@admin.com', 'password')
+    client = python_seafile.connect('http://127.0.0.1:8000', 'test@admin.com', 'password')
     repo = client.repos.get_repo('09c16e2a-ff1a-4207-99f3-1351c3f1e507')
     seafdir = repo.get_dir('/root')
 	
@@ -390,9 +390,9 @@ A File Object of new empty file
 
 ```python
 
-    import seafileapi
+    import python_seafile
 	
-    client = seafileapi.connect('http://127.0.0.1:8000', 'test@admin.com', 'password')
+    client = python_seafile.connect('http://127.0.0.1:8000', 'test@admin.com', 'password')
     repo = client.repos.get_repo('09c16e2a-ff1a-4207-99f3-1351c3f1e507')
     seafdir = repo.get_dir('/root')
 	
@@ -417,9 +417,9 @@ None
 
 ```python
 
-    import seafileapi
+    import python_seafile
 	
-    client = seafileapi.connect('http://127.0.0.1:8000', 'test@admin.com', 'password')
+    client = python_seafile.connect('http://127.0.0.1:8000', 'test@admin.com', 'password')
     repo = client.repos.get_repo('09c16e2a-ff1a-4207-99f3-1351c3f1e507')
     seaffile = repo.get_file('/root/test.md')
 	

@@ -4,7 +4,7 @@ import re
 
 def get_version():
     #https://stackoverflow.com/a/7071358/5122790
-    VERSIONFILE="seafileapi/_version.py"
+    VERSIONFILE="python_seafile/_version.py"
     verstrline = open(VERSIONFILE, "rt").read()
     VSRE = r"^__version__ = ['\"]([^'\"]*)['\"]"
     mo = re.search(VSRE, verstrline, re.M)

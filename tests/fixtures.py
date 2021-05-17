@@ -3,7 +3,7 @@
 import os
 import pytest
 
-import seafileapi
+import python_seafile
 from tests.utils import randstring
 
 SERVER = os.environ.get('SEAFILE_TEST_SERVER_ADDRESS', 'http://127.0.0.1:8000')
@@ -14,7 +14,7 @@ ADMIN_PASSWORD = os.environ.get('SEAFILE_TEST_ADMIN_PASSWORD', 'adminadmin')
 
 @pytest.fixture(scope='session')
 def client():
-    return seafileapi.connect(SERVER, USER, PASSWORD)
+    return python_seafile.connect(SERVER, USER, PASSWORD)
 
 @pytest.yield_fixture(scope='function')
 def repo(client):

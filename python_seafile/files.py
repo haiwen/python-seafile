@@ -2,7 +2,7 @@ import io
 import os
 import posixpath
 import re
-from seafileapi.utils import querystr
+from python_seafile.utils import querystr
 
 ZERO_OBJ_ID = '0000000000000000000000000000000000000000'
 
