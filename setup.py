@@ -3,7 +3,7 @@ from setuptools import setup, find_packages
 __version__ = '0.1.2'
 
 
-setup(name='seafileapi',
+setup(name='python-seafile',
       version=__version__,
       license='BSD',
       description='Client interface for Seafile Web API',
