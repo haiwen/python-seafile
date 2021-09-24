@@ -119,15 +119,15 @@ None
     client = seafileapi.connect('http://127.0.0.1:8000', 'test@admin.com', 'password')
     repo_list = client.repos.list_repos()
 
-    print repo_list
-    Out >>> [<seafileapi.repo.Repo at 0x7f1bb0769750>,
-             <seafileapi.repo.Repo at 0x7f1bb07693d0>,
-             <seafileapi.repo.Repo at 0x7f1bb0769a50>,
-             <seafileapi.repo.Repo at 0x7f1bb077cc10>,
-             <seafileapi.repo.Repo at 0x7f1bb077cfd0>,
-             <seafileapi.repo.Repo at 0x7f1bb077ca10>]
+    print(repo_list)
+    Out >>> [<seafileapi.repo.Repo object at 0x7f1bb0769750>,
+             <seafileapi.repo.Repo object at 0x7f1bb07693d0>,
+             <seafileapi.repo.Repo object at 0x7f1bb0769a50>,
+             <seafileapi.repo.Repo object at 0x7f1bb077cc10>,
+             <seafileapi.repo.Repo object at 0x7f1bb077cfd0>,
+             <seafileapi.repo.Repo object at 0x7f1bb077ca10>]
 
-    print [repo.name for repo in repo_list]
+    print([repo.name for repo in repo_list])
     Out >>> ['alphabox',
              'hello',
              'Doc',
@@ -199,12 +199,12 @@ None
     client = seafileapi.connect('http://127.0.0.1:8000', 'test@admin.com', 'password')
     repo = client.repos.get_repo('09c16e2a-ff1a-4207-99f3-1351c3f1e507')
     seafdir = repo.get_dir('/root')
-    print seafdir.__dict__
+    print(seafdir.__dict__)
     Out >>> {'client': SeafileApiClient[server=http://127.0.0.1:8000, user=admin@admin.com],
              'entries': [],
              'id': 'c3742dd86004d51c358845fa3178c87e4ab3aa60',
              'path': '/root',
-             'repo': <seafileapi.repo.Repo at 0x7f2af56b1490>,
+             'repo': <seafileapi.repo.Repo object at 0x7f2af56b1490>,
              'size': 0}
 ```
 
@@ -232,7 +232,7 @@ A Directory Object
     seafdir = repo.get_dir('/root')
 	
     lst = seafdir.ls(force_refresh=True)
-    print lst
+    print(lst)
     Out >>> [SeafDir[repo=01ccc4,path=/Seahub/6.1.x,entries=14],
              SeafDir[repo=01ccc4,path=/Seahub/6.2.2-pro,entries=1],
              SeafDir[repo=01ccc4,path=/Seahub/6.2.3,entries=15],
@@ -241,7 +241,7 @@ A Directory Object
              SeafFile[repo=01ccc4,path=/Seahub/error.md,size=127],
              SeafFile[repo=01ccc4,path=/Seahub/preview-research.md,size=1030]]
 
-    print [dirent.name for dirent in lst]
+    print([dirent.name for dirent in lst])
     Out >>> ['6.1.x',
              '6.2.2-pro',
              '6.2.3',
@@ -318,11 +318,11 @@ A Response Instance
     repo = client.repos.get_repo('09c16e2a-ff1a-4207-99f3-1351c3f1e507')
     seaffile = repo.get_file('/root/test.md')
 
-    print seafile.__dict__
+    print(seaffile.__dict__)
     Out >>> {'client': SeafileApiClient[server=http://127.0.0.1:8000, user=admin@admin.com],
              'id': '0000000000000000000000000000000000000000',
              'path': '/root/test.md',
-             'repo': <seafileapi.repo.Repo at 0x7f2af56b1490>,
+             'repo': <seafileapi.repo.Repo object at 0x7f2af56b1490>,
              'size': 0}
 ```
 

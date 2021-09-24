@@ -49,7 +49,7 @@ class SeafileApiClient(object):
     def delete(self, *args, **kwargs):
         return self._send_request('delete', *args, **kwargs)
 
-    def _send_request(self, method, url, *args, **kwargs):
+    def _send_request(self, method, url, **kwargs):
         if not url.startswith('http'):
             url = urljoin(self.server, url)
 
@@ -60,7 +60,7 @@ class SeafileApiClient(object):
         expected = kwargs.pop('expected', 200)
         if not hasattr(expected, '__iter__'):
             expected = (expected, )
-        resp = requests.request(method, url, *args, **kwargs)
+        resp = requests.request(method, url, **kwargs)
         if resp.status_code not in expected:
             msg = 'Expected %s, but get %s' % \
                   (' or '.join(map(str, expected)), resp.status_code)
