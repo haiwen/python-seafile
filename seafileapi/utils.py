@@ -7,7 +7,7 @@ from seafileapi.exceptions import ClientHttpError, DoesNotExist
 def randstring(length=0):
     if length == 0:
         length = random.randint(1, 30)
-    return ''.join(random.choice(string.lowercase) for i in range(length))
+    return ''.join(random.choice(string.ascii_lowercase) for i in range(length))
 
 def urljoin(base, *args):
     url = base
@@ -49,9 +49,9 @@ def utf8lize(obj):
         return {k: to_utf8(v) for k, v in obj.items()}
 
     if isinstance(obj, list):
-        return [to_utf8(x) for x in ob]
+        return [to_utf8(x) for x in obj]
 
-    if instance(obj, str):
+    if isinstance(obj, str):
         return obj.encode('utf-8')
 
     return obj
