@@ -1,5 +1,3 @@
-from seafileapi.client import SeafileApiClient
+from .main import SeafileAPI, Repo
 
-def connect(server, username, password):
-    client = SeafileApiClient(server, username, password)
-    return client
+
