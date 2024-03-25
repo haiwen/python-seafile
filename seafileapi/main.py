@@ -92,8 +92,6 @@ class Repo(object):
             "create_parents":create_parents
         }
         response = requests.post(url,params=params,json=data,headers=self.headers, timeout=self.timeout)
-        if response.status_code == 400:
-            return {'error': 'Path is missing or invalid(e.g. p=/)'}
         return parse_response(response)
 
     def rename_dir(self,p,newname):
@@ -104,14 +102,6 @@ class Repo(object):
             'newname':newname
         }
         response = requests.post(url,params=params,json=data,headers=self.headers,timeout=self.timeout)
-        if response.status_code == 400:
-            return {'error': 'newname is not given'}
-        elif response.status_code == 403:
-            return {'error': 'You do not have permission to rename a folder'}
-        elif response.status_code == 520:
-            return {'error': 'Failed to rename directory (generic problem)'}
-        elif response.status_code == 404:
-            return {'error': 'Folder %s not found' % p}
         return parse_response(response)
 
 
@@ -119,12 +109,6 @@ class Repo(object):
         url = self._repo_dir_url()
         params = {'path':p} if '/via-repo-token' in url else {'p':p}
         response = requests.delete(url,params=params,headers=self.headers,timeout=self.timeout)
-        if response.status_code == 400:
-            return {'error': 'Path is missing or invalid(e.g. p=/)'}
-        elif response.status_code == 404:
-            return {'error': 'Folder %s not found' % p}
-        elif response.status_code == 520:
-            return {'error': 'Operation failed.'}
         return parse_response(response)
 
 
@@ -135,15 +119,7 @@ class Repo(object):
             else urljoin(self.server_url,'api2/repos/%s/file/detail/'%self.repo_id)
         params = {'path':p} if '/via-repo-token' in url else { "p":p }
         response = requests.get(url,params=params, headers=self.headers, timeout=self.timeout)
-        if response.status_code == 200:
-            return parse_response(response)
-        elif response.status_code == 404:
-            errpr_data= {'error': 'Library/File not found'}
-            return errpr_data
-        elif response.status_code == 403:
-            return {'error': 'p invalid'}
-        else:
-            return {'error': 'Permission denied'}
+        return parse_response(response)
 
     def create_file(self,p):
         url = self._repo_file_url()
@@ -152,14 +128,6 @@ class Repo(object):
             "operation":"create"
         }
         response = requests.post(url,params=params,json=data, headers=self.headers, timeout=self.timeout)
-        if response.status_code == 400:
-            return {'error': 'operation/name invalid.'}
-        elif response.status_code == 404:
-            return {'error': 'Library/File not found'}
-        elif response.status_code == 403:
-            return {'error': 'Permission denied'}
-        elif response.status_code == 500:
-            return {'error': 'Internal Server Error'}
         return parse_response(response)
 
 
@@ -177,16 +145,6 @@ class Repo(object):
             "newname":newname
         }
         response = requests.post(url,params=params,json=data, headers=self.headers, timeout=self.timeout)
-        status_messages = {
-            400: {'error': 'Path is missing or invalid (e.g. p=/) or newname is missing (newname too long)'},
-            404: {'error': 'Not Found'},
-            403: {'error': 'Permission'},
-            520: {'error': 'Fail to rename file'},
-            409: {'error': 'The newname is the same as the old'},
-        }
-        if response.status_code in status_messages:
-            return status_messages.get(response.status_code)
-
         return parse_response(response)
 
     def delete_file(self,p):
@@ -198,11 +156,6 @@ class Repo(object):
         url = self._repo_file_url()
         params = {'path':p} if '/via-repo-token' in url else {'p':p}
         response = requests.delete(url,params=params,headers=self.headers, timeout=self.timeout)
-        if response.status_code == 400:
-            return {'error': 'Path is missing or invalid(e.g'}
-        elif response.status_code == 500:
-            return {'error': 'Operation failed.'}
-
         return parse_response(response)
 
 
@@ -265,10 +218,6 @@ class SeafileAPI(object):
             data = parse_response(response)
             repo_id = data.get('repo_id')
             return (self._repo_obj(repo_id))
-        elif response.status_code == 400:
-            return {'error': 'Library name missing.'}
-        else:
-            return {'error': 'Operation failed.'}
 
     def delete_repo(self, repo_id):
         """Remove this repo. Only the repo owner can do this"""
