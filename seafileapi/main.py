@@ -11,6 +11,7 @@ def parse_headers(token):
         'Content-Type': 'application/json',
     }
 
+
 def parse_response(response):
     if response.status_code >= 400:
         raise ConnectionError(response.status_code, response.text)
@@ -24,7 +25,6 @@ def parse_response(response):
 
 class Repo(object):
 
-
     def __init__(self, token, server_url):
 
         self.server_url = server_url
@@ -34,7 +34,6 @@ class Repo(object):
         self.headers = None
 
         self._by_api_token = True
-
 
     def auth(self, by_api_token=True):
         if not by_api_token:
@@ -81,82 +80,77 @@ class Repo(object):
         resp = parse_response(response)
         return resp['dirent_list']
 
-
-    def create_dir(self,p,create_parents=False):
+    def create_dir(self, path, create_parents=False):
         # / api2 / repos / {repo_id} / dir /
         url = self._repo_dir_url()
-        params = {'path':p} if '/via-repo-token' in url else {'p':p}
+        params = {'path': path} if '/via-repo-token' in url else {'p': path}
         data = {
             'operation': 'mkdir',
-            "create_parents":create_parents
+            "create_parents": create_parents
         }
-        response = requests.post(url,params=params,json=data,headers=self.headers, timeout=self.timeout)
+        response = requests.post(url, params=params, json=data, headers=self.headers, timeout=self.timeout)
         return parse_response(response)
 
-    def rename_dir(self,p,newname):
+    def rename_dir(self, path, newname):
         url = self._repo_dir_url()
-        params = {'path':p} if '/api/v2.1/via-repo-token' in url else {'p':p}
+        params = {'path': path} if '/api/v2.1/via-repo-token' in url else {'p': path}
         data = {
             'operation': 'rename',
-            'newname':newname
+            'newname': newname
         }
-        response = requests.post(url,params=params,json=data,headers=self.headers,timeout=self.timeout)
+        response = requests.post(url, params=params, json=data, headers=self.headers, timeout=self.timeout)
         return parse_response(response)
 
-
-    def delete_dir(self,p):
+    def delete_dir(self, path):
         url = self._repo_dir_url()
-        params = {'path':p} if '/via-repo-token' in url else {'p':p}
-        response = requests.delete(url,params=params,headers=self.headers,timeout=self.timeout)
+        params = {'path': path} if '/via-repo-token' in url else {'p': path}
+        response = requests.delete(url, params=params, headers=self.headers, timeout=self.timeout)
         return parse_response(response)
 
-
-    def get_file(self,p):
+    def get_file(self, path):
         # /api2/repos/{repo_id}/file/detail/
         url = self._repo_file_url() \
             if '/via-repo-token' in self._repo_file_url() \
-            else urljoin(self.server_url,'api2/repos/%s/file/detail/'%self.repo_id)
-        params = {'path':p} if '/via-repo-token' in url else { "p":p }
-        response = requests.get(url,params=params, headers=self.headers, timeout=self.timeout)
+            else urljoin(self.server_url, 'api2/repos/%s/file/detail/' % self.repo_id)
+        params = {'path': path} if '/via-repo-token' in url else {"p": path}
+        response = requests.get(url, params=params, headers=self.headers, timeout=self.timeout)
         return parse_response(response)
 
-    def create_file(self,p):
+    def create_file(self, path):
         url = self._repo_file_url()
-        params = {'path':p} if '/via-repo-token' in url else {'p':p}
+        params = {'path': path} if '/via-repo-token' in url else {'p': path}
         data = {
-            "operation":"create"
+            "operation": "create"
         }
-        response = requests.post(url,params=params,json=data, headers=self.headers, timeout=self.timeout)
+        response = requests.post(url, params=params, json=data, headers=self.headers, timeout=self.timeout)
         return parse_response(response)
 
-
-    def rename_file(self,p,newname):
+    def rename_file(self, path, newname):
         """
         Rename a file
-        :param p:file path
+        :param path: file path
         :param newname:file newname
         :return:
         """
         url = self._repo_file_url()
-        params = {'path':p} if '/via-repo-token' in url else {'p':p}
+        params = {'path': path} if '/via-repo-token' in url else {'p': path}
         data = {
-            "operation":"rename",
-            "newname":newname
+            "operation": "rename",
+            "newname": newname
         }
-        response = requests.post(url,params=params,json=data, headers=self.headers, timeout=self.timeout)
+        response = requests.post(url, params=params, json=data, headers=self.headers, timeout=self.timeout)
         return parse_response(response)
 
-    def delete_file(self,p):
+    def delete_file(self, path):
         """
         Delete a file/folder
         :param p: file/folder path
         :return:{'success': True, 'commit_id': '2147035976f20495fdc0a85f1a8a9c109b22c97d'}
         """
         url = self._repo_file_url()
-        params = {'path':p} if '/via-repo-token' in url else {'p':p}
-        response = requests.delete(url,params=params,headers=self.headers, timeout=self.timeout)
+        params = {'path': path} if '/via-repo-token' in url else {'p': path}
+        response = requests.delete(url, params=params, headers=self.headers, timeout=self.timeout)
         return parse_response(response)
-
 
 
 class SeafileAPI(object):
@@ -170,6 +164,7 @@ class SeafileAPI(object):
         self.timeout = 30
 
         self.headers = None
+
     def auth(self):
         data = {
             'username': self.login_name,
@@ -203,7 +198,7 @@ class SeafileAPI(object):
         repo_id = data.get('id')
         return self._repo_obj(repo_id)
 
-    def create_repo(self, repo_name,passwd=None,story_id=None):
+    def create_repo(self, repo_name, passwd=None, story_id=None):
         url = urljoin(self.server_url, 'api2/repos/')
         data = {
             "name": repo_name,
@@ -212,14 +207,14 @@ class SeafileAPI(object):
             data['passwd'] = passwd
         if story_id:
             data['story_id'] = story_id
-        response = requests.post(url,json=data, headers=self.headers,timeout=self.timeout)
+        response = requests.post(url, json=data, headers=self.headers, timeout=self.timeout)
         if response.status_code == 200:
             data = parse_response(response)
             repo_id = data.get('repo_id')
-            return (self._repo_obj(repo_id))
+            return self._repo_obj(repo_id)
 
     def delete_repo(self, repo_id):
         """Remove this repo. Only the repo owner can do this"""
-        url = urljoin(self.server_url,'/api2/repos/%s/'%repo_id)
+        url = urljoin(self.server_url, '/api2/repos/%s/' % repo_id)
         requests.delete(url, headers=self.headers, timeout=self.timeout)
         return True
