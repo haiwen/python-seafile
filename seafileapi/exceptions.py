@@ -10,9 +10,7 @@ class ClientHttpError(Exception):
     def __str__(self):
         return 'ClientHttpError[%s: %s]' % (self.code, self.message)
 
-class OperationError(Exception):
-    """Expcetion to raise when an opeartion is failed"""
-    pass
+
 
 
 class DoesNotExist(Exception):

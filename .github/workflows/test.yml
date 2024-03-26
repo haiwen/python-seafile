@@ -1,0 +1,27 @@
+name: Seafile Python SDK
+
+on:
+  pull_request:
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+
+    steps:
+      - uses: actions/checkout@v2
+      - uses: actions/setup-python@v2
+        with:
+          python-version: "3.9"
+
+      - name: pip install
+        run: |
+          pip install --upgrade pip
+          pip install requests
+          pip install pylint
+
+      - name: run pylint test
+        run: |
+          cd $GITHUB_WORKSPACE
+          pylint ./seafileapi/*.py --disable=all --enable=F,E,W --disable=broad-exception-caught,unspecified-encoding
+
+
