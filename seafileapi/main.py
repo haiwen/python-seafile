@@ -1,6 +1,5 @@
 import json
 import requests
-import os
 
 from seafileapi.exceptions import ClientHttpError
 from seafileapi.utils import urljoin
@@ -19,7 +18,7 @@ def parse_response(response):
         try:
             data = json.loads(response.text)
             return data
-        except:
+        except Exception:
             pass
 
 
@@ -177,7 +176,7 @@ class SeafileAPI(object):
             'password': self.password,
         }
         url = "%s/%s" % (self.server_url.rstrip('/'), 'api2/auth-token/')
-        res = requests.post(url, data=data)
+        res = requests.post(url, data=data, timeout=self.timeout)
         if res.status_code != 200:
             raise ClientHttpError(res.status_code, res.content)
         token = res.json()['token']
