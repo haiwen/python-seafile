@@ -76,7 +76,9 @@ You can use SeafileAPI object to list/add/delete repos.
 seafile_api.list_repos()
 ```
 
-Sample result
+Return the list of repos accessible by the current user.
+
+Sample results:
 
 ```
 [
