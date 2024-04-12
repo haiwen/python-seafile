@@ -1,11 +1,11 @@
-# Quick start of Seafile Python SDK
+# Quick start of Seafile Python SDK 2.0
 
 Seafile Python SDK provides functions to read and write files in Seafile server.
 
 ## Setups
 
 ```basic
-pip install seafileapi2
+pip install seafileapi
 ```
 
 
@@ -29,7 +29,7 @@ A repo object represents a library in Seafile. You can use it to manipulate file
 SeafileAPI object can be authenticated by using user's username and password.
 
 ```
-from seafileapi2 import SeafileAPI
+from seafileapi import SeafileAPI
 server_url = "https://cloud.seafile.com/"
 login_name = "example@examle.com"
 pwd = "password"
@@ -44,7 +44,7 @@ There are two ways to get an authenticated repo object:
 #### By username and password
 
 ```python
-from seafileapi2 import SeafileAPI
+from seafileapi import SeafileAPI
 server_url = "https://cloud.seafile.com/"
 login_name = "example@examle.com"
 pwd = "password"
@@ -59,7 +59,7 @@ repo = seafile_api.get_repo(repo_id) # return <Repo> object
 You can generate API-Token for a repo in Seafile Web interface (In the "Advanced" --> "API Token" in the dropdown menu of a library). Every API-Token can have different read or write permissions. This token is valid until you delete them.
 
 ```python
-from seafileapi2 import SeafileAPI
+from seafileapi import SeafileAPI
 server_url = "https://cloud.seafile.com/"
 api_token = '6de40d8456b06bdb4c9eabbf658175bdc4084050'
 api_repo = Repo(api_token, server_url)
