@@ -78,7 +78,13 @@ seafile_api.list_repos()
 
 Return the list of repos accessible by the current user.
 
-Sample results:
+**Example**
+
+```python
+seafile_api.list_repos()
+```
+
+A list of repos in plain objects is returned:
 
 ```
 [
