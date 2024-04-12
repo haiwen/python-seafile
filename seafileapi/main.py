@@ -80,13 +80,12 @@ class Repo(object):
         resp = parse_response(response)
         return resp['dirent_list']
 
-    def create_dir(self, path, create_parents=False):
+    def create_dir(self, path):
         # / api2 / repos / {repo_id} / dir /
         url = self._repo_dir_url()
         params = {'path': path} if '/via-repo-token' in url else {'p': path}
         data = {
             'operation': 'mkdir',
-            "create_parents": create_parents
         }
         response = requests.post(url, params=params, json=data, headers=self.headers, timeout=self.timeout)
         return parse_response(response)
