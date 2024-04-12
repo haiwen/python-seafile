@@ -115,23 +115,24 @@ Sample results:
 seafile_api.create_repo(repo_name, passwd=None)
 ```
 
-Parameters
+Create a repo and return the repo object.
 
-* repo_name: 
-* passwd: ou can assign a password to a library to protect it.
+**Parameters**:
 
-**Example** :
+* repo_name: the name of the library.
+* passwd: if specified, an encrypted library is created.
+
+**Example**
 
 ```python
 seafile_api.create_repo("My new repo")
 ```
 
-And then a repo object returned as:
+The newly created repo object is returned:
 
 ```python
 <seafileapi.main.Repo object at 0x7f9417360fa0>
 ```
-
 
 
 ### Delete repo
