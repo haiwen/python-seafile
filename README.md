@@ -160,17 +160,17 @@ seafile_api.delete_repo(repo_id)
 
 
 
-## File / Dir operation
+## File / folder operation
 
-You can use Repo object to manipulate files and directories.
+You can use Repo object to manipulate files and folders.
 
-### List dir
+### List folder items
 
 ```python
 repo.list_dir(dir_path = '/')
 ```
 
-Return the list of items in plain objects showed in a specific dir.
+Return the list of items in plain objects showed in a specific folder.
 
 **Example:**
 
@@ -178,7 +178,7 @@ Return the list of items in plain objects showed in a specific dir.
 repo.list_dir('/root') 
 ```
 
-A list of dir items in plain objects is returned:
+A list of folder items in plain objects is returned:
 
 ```
 [{
@@ -210,13 +210,13 @@ A list of dir items in plain objects is returned:
 }, ...]
 ```
 
-### Create a dir
+### Create a folder
 
 ```python
 repo.create_dir(path)
 ```
 
-Create a directory and return a plain object.
+Create a folder and return a plain object.
 
 **Example:**
 
@@ -224,7 +224,7 @@ Create a directory and return a plain object.
 repo.create_dir('/A new')
 ```
 
-A dir in plain object is returned:
+A folder in plain object is returned
 
 ```
 {
@@ -237,13 +237,13 @@ A dir in plain object is returned:
 }
 ```
 
-### Rename a dir
+### Rename a folder
 
 ```python
 repo.rename_dir(path, new_name)
 ```
 
-Change the dir name and return a plain object.
+Change the folder name and return a plain object.
 
 **Example:**
 
@@ -251,7 +251,7 @@ Change the dir name and return a plain object.
 repo.rename_dir('/A new', 'new file')
 ```
 
-A dir in plain object is returned:
+A folder in plain object is returned:
 
 ```
 {
@@ -264,13 +264,13 @@ A dir in plain object is returned:
 }
 ```
 
-### Delete dir
+### Delete a folder
 
 ```python
 repo.delete_dir(path)
 ```
 
-A dir in a specific path will be deleted.
+A folder in a specific path will be deleted.
 
 **Example:**
 
