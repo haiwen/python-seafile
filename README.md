@@ -172,10 +172,6 @@ repo.list_dir(dir_path = '/')
 
 Return the list of items in plain objects showed in a specific dir.
 
-**Parameters:**
-
-* dir_path:  a parent path inside of which the items you want to list.
-
 **Example:**
 
 ```python
@@ -222,10 +218,6 @@ repo.create_dir(path)
 
 Create a directory and return a plain object.
 
-**Parameters:**
-
-* path: a path with a new dir you want to create
-
 **Example:**
 
 ```python
@@ -252,10 +244,6 @@ repo.rename_dir(path, new_name)
 ```
 
 Change the dir name and return a plain object.
-
-**Parameters:**
-
-* path: a path with old dir name. 
 
 **Example:**
 
