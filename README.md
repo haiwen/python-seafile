@@ -1,6 +1,6 @@
-# Quick start for seafile web api by python
+# Quick start of Seafile Python SDK
 
-We provide a series of functions for handling files and dirs in your Seafile account by python.
+Seafile Python SDK provides functions to read and write files in Seafile server.
 
 ## Setups
 
@@ -9,34 +9,43 @@ pip install seafileapi2
 ```
 
 
-
 ## Basic objects
 
-In this python package, we provide two basic objects, each with its own unique functionality.
+Two basic objects are used in Seafile Python SDK.
 
-* SeafileAPI
+#### SeafileAPI
 
-SeafileAPI object can be authorized by user's login name and password.  After authorization, you can handle the library such as add, delete and so on. 
+You can initialize a SeafileAPI object with user's login name and password.  After authentication, you can get library objects for specific libraries to manipulate on libraries.
 
-* Repo
+#### Repo
 
-Repo is a object, by using which you can handle the files and dirs inside a library.
+A repo object represents a library in Seafile. You can use it to manipulate files and folders inside a library.
+
+> Hints: In Seafile project, "Repo" is the short for "Repository". It has a same meaning of the term "library".
 
 
+## SeafileAPI authentication
 
-## Repo authorization
+SeafileAPI object can be authenticated by using user's username and password.
 
-The base object in the SDK is call `Repo`. A repo contains dirs and files. Before doing operation on dirs and files, you should authorize a repo.  There a 2 ways for repo authorization:
+```
+from seafileapi2 import SeafileAPI
+server_url = "https://cloud.seafile.com/"
+login_name = "example@examle.com"
+pwd = "password"
+seafile_api = SeafileAPI(login_name, pwd, server_url)
+seafile_api.auth()
+```
 
-> Hints: In our seafile project, the name "Repo" is the short for "Repository" to stand for a library in early time. Now "Repo" and
->
-> "Library" has same meaning.
+## Repo authentication
 
-#### By user account
+There are two ways to get an authenticated repo object:
+
+#### By username and password
 
 ```python
 from seafileapi2 import SeafileAPI
-server_url = "https://cloud.seafile.cn/"
+server_url = "https://cloud.seafile.com/"
 login_name = "example@examle.com"
 pwd = "password"
 seafile_api = SeafileAPI(login_name, pwd, server_url)
@@ -45,36 +54,33 @@ repo_id = "xxxxxxxxxxxx"
 repo = seafile_api.get_repo(repo_id) # return <Repo> object
 ```
 
-#### By repo api-token
+#### By Repo API-Token
 
-An **API-Token** is like a password to use the API requests of a repo. You create as many API-Tokens per repo as you want. Every API-Token can have different read or write permissions. This token is valid until you delete them. You can generate a API-token in the "Advanced" --> ''API Token'' in the dropdown menu of a library.
+You can generate API-Token for a repo in Seafile Web interface (In the "Advanced" --> "API Token" in the dropdown menu of a library). Every API-Token can have different read or write permissions. This token is valid until you delete them.
 
 ```python
 from seafileapi2 import SeafileAPI
-server_url = "http://127.0.0.1:8000/"
+server_url = "https://cloud.seafile.com/"
 api_token = '6de40d8456b06bdb4c9eabbf658175bdc4084050'
 api_repo = Repo(api_token, server_url)
 api_repo.auth()
 ```
 
+## Repo operations 
 
-
-## Repo operation 
-
-You can authorize an SeafileAPI object by using your login account, and then you can do the operation as follows:
+You can use SeafileAPI object to list/add/delete repos.
 
 ### List repos
 
 ```python
-...
-seafile_api.auth()
 seafile_api.list_repos()
 ```
 
-And then a list returned as:
+Sample result
 
 ```
-[{
+[
+    {
 	'type': 'repo',
 	'id': '83066b00-67ef-4068-b738-7a7381558d1b',
 	'owner': 'jiwei.ran@seafile.com',
@@ -95,9 +101,10 @@ And then a list returned as:
 	'head_commit_id': 'e27451a9c3e4a9f558bc15eacbf9e33a7b3f3ab5',
 	'version': 1,
 	'salt': ''
-}, .....]
+    },
+    .....
+]
 ```
-
 
 
 ### Create repo
@@ -106,7 +113,10 @@ And then a list returned as:
 seafile_api.create_repo(repo_name, passwd=None)
 ```
 
-* passwd:  you can assign a password to a library to protect it.
+Parameters
+
+* repo_name: 
+* passwd: ou can assign a password to a library to protect it.
 
 **Example** :
 
