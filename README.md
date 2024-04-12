@@ -147,6 +147,10 @@ The newly created repo object is returned:
 seafile_api.delete_repo(repo_id)
 ```
 
+**Parameters:**
+
+* repo_id: unique identifier of a library
+
 **Example:**
 
 ```python
@@ -158,23 +162,27 @@ seafile_api.delete_repo(repo_id)
 
 ## File / Dir operation
 
-In the previous section, we talked about how to authorize a repo, and once authorized, you can manipulate the files and directories inside based on the functions in repo object. 
+You can use Repo object to manipulate files and directories.
 
 ### List dir
-
-List the items inside a specific directory of a path
 
 ```python
 repo.list_dir(dir_path = '/')
 ```
 
+Return the list of items in plain objects showed in a specific dir.
+
+**Parameters:**
+
+* dir_path:  a parent path inside of which the items you want to list.
+
 **Example:**
 
 ```python
-repo.list_dir('/root')
+repo.list_dir('/root') 
 ```
 
-And then the items returned as:
+A list of dir items in plain objects is returned:
 
 ```
 [{
@@ -183,7 +191,7 @@ And then the items returned as:
 	'name': 'auto-upload',
 	'mtime': '2023-03-14T14:36:49+08:00',
 	'permission': 'rw',
-	'parent_dir': '/images/',
+	'parent_dir': '/root',
 	'starred': False
 }, {
 	'type': 'file',
@@ -191,10 +199,10 @@ And then the items returned as:
 	'name': '6613.txt',
 	'mtime': '2020-12-26T10:14:52+08:00',
 	'permission': 'rw',
-	'parent_dir': '/images/',
+	'parent_dir': '/root',
 	'size': 14,
 	'modifier_email': 'jiwei.ran@seafile.com',
-	'modifier_name': '冉继伟',
+	'modifier_name': 'Jiwei',
 	'modifier_contact_email': 'r350178982@126.com',
 	'is_locked': False,
 	'lock_time': 0,
@@ -206,15 +214,17 @@ And then the items returned as:
 }, ...]
 ```
 
-
-
 ### Create a dir
 
 ```python
 repo.create_dir(path)
 ```
 
-* path, the directory you want to create
+Create a directory and return a plain object.
+
+**Parameters:**
+
+* path: a path with a new dir you want to create
 
 **Example:**
 
@@ -222,7 +232,7 @@ repo.create_dir(path)
 repo.create_dir('/A new')
 ```
 
-And then the result returned as:
+A dir in plain object is returned:
 
 ```
 {
@@ -235,13 +245,17 @@ And then the result returned as:
 }
 ```
 
-
-
 ### Rename a dir
 
 ```python
 repo.rename_dir(path, new_name)
 ```
+
+Change the dir name and return a plain object.
+
+**Parameters:**
+
+* path: a path with old dir name. 
 
 **Example:**
 
@@ -249,7 +263,7 @@ repo.rename_dir(path, new_name)
 repo.rename_dir('/A new', 'new file')
 ```
 
-And then the result returned as:
+A dir in plain object is returned:
 
 ```
 {
@@ -262,13 +276,13 @@ And then the result returned as:
 }
 ```
 
-
-
 ### Delete dir
 
 ```python
 repo.delete_dir(path)
 ```
+
+A dir in a specific path will be deleted.
 
 **Example:**
 
@@ -280,11 +294,11 @@ repo.delete_dir('/new file')
 
 ### Get a file
 
-Get details of a file
-
 ```python
 repo.get_file(path)
 ```
+
+Get details of a file and return a plain object
 
 **Example**
 
@@ -292,7 +306,7 @@ repo.get_file(path)
 repo.get_file('/file/readme.txt')
 ```
 
-And then the result returned as:
+A file in plain object is returned:
 
 ```
 {
@@ -308,13 +322,13 @@ And then the result returned as:
 }
 ```
 
-
-
 ### Create a file
 
 ```python
 repo.create_file(path)
 ```
+
+Create a file and return a plain object.
 
 **Example**
 
@@ -322,7 +336,7 @@ repo.create_file(path)
 repo.create('/file/d.txt')
 ```
 
-And then the result returned as:
+A file in plain object is returned:
 
 ```
 {
@@ -338,13 +352,17 @@ And then the result returned as:
 }
 ```
 
-
-
 ### Rename a file
 
 ```python
 repo.rename_file(path, new_name)
 ```
+
+Change the file  name and return a plain object.
+
+**Parameters:**
+
+* path: a path with old file name.
 
 **Example**
 
@@ -352,13 +370,13 @@ repo.rename_file(path, new_name)
 repo.rename_file('/file/readme.txt', 'readme1.txt')
 ```
 
-And then the result returned as:
+A file in plain object is returned:
 
 ```
 {
 	'type': 'file',
 	'repo_id': '83066b00-67ef-4068-b738-7a7381558d1b',
-	'parent_dir': '/images',
+	'parent_dir': '/file',
 	'obj_name': 'readme1.txt',
 	'obj_id': '0000000000000000000000000000000000000000',
 	'size': 0,
@@ -368,13 +386,13 @@ And then the result returned as:
 }
 ```
 
-
-
 ### Delete a file
 
 ```python
 repo.delete_file(path)
 ```
+
+A file in a specific path will be deleted.
 
 **Example**
 
@@ -382,15 +400,13 @@ repo.delete_file(path)
 repo.delete_file('/file/readme.txt')
 ```
 
-
-
 ### Get repo details
 
 ```python
 repo.get_repo_details()
 ```
 
-And then the result returned as:
+A repo info in plain object is returned:
 
 ```
 {
