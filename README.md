@@ -1,4 +1,4 @@
-# Quick start of Seafile Python SDK 2.0
+# Quick start of Seafile Python SDK
 
 Seafile Python SDK provides functions to read and write files in Seafile server.
 
