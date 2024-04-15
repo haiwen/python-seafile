@@ -5,7 +5,7 @@ Seafile Python SDK provides functions to read and write files in Seafile server.
 ## Setups
 
 ```basic
-pip install seafileapi
+pip install seafileapi2
 ```
 
 
