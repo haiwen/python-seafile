@@ -1,3 +1,4 @@
+import os
 import json
 import requests
 
@@ -57,6 +58,18 @@ class Repo(object):
             return "%s/%s" % (self.server_url.rstrip('/'), 'api/v2.1/via-repo-token/file/')
 
         return "%s/%s" % (self.server_url.rstrip('/'), 'api/v2.1/repos/%s/file/' % self.repo_id)
+
+    def _repo_upload_link_url(self):
+        if self._by_api_token:
+            return "%s/%s" % (self.server_url.rstrip('/'), 'api/v2.1/via-repo-token/upload-link/')
+
+        return "%s/%s" % (self.server_url.rstrip('/'), 'api2/repos/%s/upload-link/' % self.repo_id)
+
+    def _repo_download_link_url(self):
+        if self._by_api_token:
+            return "%s/%s" % (self.server_url.rstrip('/'), 'api/v2.1/via-repo-token/download-link/')
+
+        return "%s/%s" % (self.server_url.rstrip('/'), 'api2/repos/%s/file/' % self.repo_id)
 
     def get_repo_details(self):
         url = self._repo_info_url()
@@ -150,6 +163,36 @@ class Repo(object):
         params = {'path': path} if '/via-repo-token' in url else {'p': path}
         response = requests.delete(url, params=params, headers=self.headers, timeout=self.timeout)
         return parse_response(response)
+
+    def upload_file(self, parent_dir, file_path):
+        file_name = os.path.basename(file_path)
+        upload_link_url = self._repo_upload_link_url()
+        params = {'p': parent_dir}
+        response = requests.get(upload_link_url, params=params, headers=self.headers, timeout=self.timeout)
+        upload_link = response.text.strip('"')
+        files = {'file': open(file_path, 'rb')}
+        data = {'parent_dir': parent_dir}
+        response = requests.post(upload_link, files=files, data=data)
+        if response.status_code == 200:
+            return f"File '{file_name}' uploaded successfully."
+        else:
+            return f"File '{file_name}' upload failed"
+
+    def download_file(self, file_path):
+        url = self._repo_download_link_url()
+        params = {'path': file_path} if '/via-repo-token' in url else {'p': file_path}
+        response = requests.get(url, params=params, headers=self.headers)
+
+        file_download_url = response.json()
+        response = requests.get(file_download_url, headers=self.headers)
+        file_name = os.path.basename(file_path)
+
+        if response.status_code == 200:
+            with open(file_name, 'wb') as file:
+                file.write(response.content)
+            return f"File '{file_name}' download successful"
+        else:
+            return f"File '{file_name}' download failed"
 
 
 class SeafileAPI(object):
