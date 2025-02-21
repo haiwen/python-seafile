@@ -405,6 +405,35 @@ A repo info in plain object is returned:
 	'last_modified': '2024-04-12T12:35:42+08:00'
 }
 ```
+### Upload a file
+
+```python
+repo.upload_file(dir_path, file_path)
+```
+
+Upload local files to the repo.
+
+**Example:**
+
+```python
+repo.upload_file('/', '/files/test.txt')
+```
+
+
+### Download file
+
+```python
+repo.download_file(file_path)
+```
+
+A file in a specific path will be download.
+
+**Example:**
+
+```python
+repo.download_file('/test.txt')
+```
+
 
 
 
