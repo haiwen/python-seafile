@@ -411,7 +411,7 @@ A repo info in plain object is returned:
 repo.upload_file(dir_path, file_path)
 ```
 
-Upload local files to the repo.
+Upload local files with file_path to the dir_path of a repo.
 
 **Example:**
 
@@ -423,15 +423,15 @@ repo.upload_file('/', '/files/test.txt')
 ### Download file
 
 ```python
-repo.download_file(file_path)
+repo.download_file(file_path, local_path)
 ```
 
-A file in a specific path will be download.
+A file in a specific path will be downloaded into local_path.
 
 **Example:**
 
 ```python
-repo.download_file('/test.txt')
+repo.download_file('/test.txt', '/Users/test.txt')
 ```
 
 
