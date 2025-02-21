@@ -165,34 +165,32 @@ class Repo(object):
         return parse_response(response)
 
     def upload_file(self, parent_dir, file_path):
-        file_name = os.path.basename(file_path)
         upload_link_url = self._repo_upload_link_url()
-        params = {'p': parent_dir}
+        params = {'path': parent_dir} if '/via-repo-token' in upload_link_url else {'p': parent_dir}
         response = requests.get(upload_link_url, params=params, headers=self.headers, timeout=self.timeout)
         upload_link = response.text.strip('"')
+        upload_link = "%s?ret-json=1" % upload_link
         files = {'file': open(file_path, 'rb')}
         data = {'parent_dir': parent_dir}
         response = requests.post(upload_link, files=files, data=data)
         if response.status_code == 200:
-            return f"File '{file_name}' uploaded successfully."
+            return response.json()[0]
         else:
-            return f"File '{file_name}' upload failed"
+            raise Exception('upload file error')
 
-    def download_file(self, file_path):
+    def download_file(self, file_path, save_path):
         url = self._repo_download_link_url()
         params = {'path': file_path} if '/via-repo-token' in url else {'p': file_path}
         response = requests.get(url, params=params, headers=self.headers)
 
         file_download_url = response.json()
         response = requests.get(file_download_url, headers=self.headers)
-        file_name = os.path.basename(file_path)
 
         if response.status_code == 200:
-            with open(file_name, 'wb') as file:
+            with open(save_path, 'wb') as file:
                 file.write(response.content)
-            return f"File '{file_name}' download successful"
         else:
-            return f"File '{file_name}' download failed"
+            raise Exception('download file error')
 
 
 class SeafileAPI(object):
