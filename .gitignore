@@ -55,3 +55,6 @@ docs/_build/
 target/
 
 .idea/
+
+# test configuration
+demo/test.ini

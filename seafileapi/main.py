@@ -6,9 +6,10 @@ from seafileapi.exceptions import ClientHttpError
 from seafileapi.utils import urljoin
 
 
-def parse_headers(token):
+def parse_headers(token, bearer=False):
+    AUTH_WORD = 'Bearer ' if bearer else 'Token '
     return {
-        'Authorization': 'Token ' + token,
+        'Authorization': AUTH_WORD + token,
         'Content-Type': 'application/json',
     }
 
@@ -33,13 +34,23 @@ class Repo(object):
         self.repo_id = None
         self.timeout = 30
         self.headers = None
+        self.version = None
 
         self._by_api_token = True
 
     def auth(self, by_api_token=True):
         if not by_api_token:
             self._by_api_token = False
-        self.headers = parse_headers(self.token)
+        self._get_server_version()
+        using_bearer = int(self.version.split('.')[0]) >= 11 # From version 11.0
+        self.headers = parse_headers(self.token, using_bearer)
+
+    def _get_server_version(self):
+        url = urljoin(self.server_url, '/api2/server-info/')
+        res = requests.get(url, timeout=self.timeout)
+        if res.status_code != 200:
+            raise ClientHttpError(res.status_code, res.content)
+        self.version = res.json()['version']
 
     def _repo_info_url(self):
         if self._by_api_token:
@@ -202,22 +213,42 @@ class SeafileAPI(object):
         self.server_url = server_url.strip().strip('/')
         self.token = None
         self.timeout = 30
+        self.version = None
 
         self.headers = None
 
+    @classmethod
+    def from_auth_token(cls, auth_token, server_url):
+        # allow auth token generated via web interface
+        instance = cls(None, None, server_url)
+        instance.token = auth_token
+
+        return instance
+
     def auth(self):
-        data = {
-            'username': self.login_name,
-            'password': self.password,
-        }
-        url = "%s/%s" % (self.server_url.rstrip('/'), 'api2/auth-token/')
-        res = requests.post(url, data=data, timeout=self.timeout)
+
+        if self.password:
+            data = {
+                'username': self.login_name,
+                'password': self.password,
+            }
+            url = "%s/%s" % (self.server_url.rstrip('/'), 'api2/auth-token/')
+            res = requests.post(url, data=data, timeout=self.timeout)
+            if res.status_code != 200:
+                raise ClientHttpError(res.status_code, res.content)
+            token = res.json()['token']
+            assert len(token) == 40, 'The length of seahub api auth token should be 40'
+            self.token = token
+        self._get_server_version()
+        using_bearer = int(self.version.split('.')[0]) >= 11 # From version 11.0
+        self.headers = parse_headers(self.token, using_bearer)
+
+    def _get_server_version(self):
+        url = urljoin(self.server_url, '/api2/server-info/')
+        res = requests.get(url, timeout=self.timeout)
         if res.status_code != 200:
             raise ClientHttpError(res.status_code, res.content)
-        token = res.json()['token']
-        assert len(token) == 40, 'The length of seahub api auth token should be 40'
-        self.token = token
-        self.headers = parse_headers(token)
+        self.version = res.json()['version']
 
     def _repo_obj(self, repo_id):
         repo = Repo(self.token, self.server_url)
