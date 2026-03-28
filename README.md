@@ -17,6 +17,8 @@ Two basic objects are used in Seafile Python SDK.
 
 You can initialize a SeafileAPI object with user's login name and password.  After authentication, you can get library objects for specific libraries to manipulate on libraries.
 
+The SeafileAPI object can also be initialized with `SeafileAPI.from_auth_token(auth_token, server_url)` if you already have a valid auth token generated from Web UI.
+
 #### Repo
 
 A repo object represents a library in Seafile. You can use it to manipulate files and folders inside a library.
@@ -37,18 +39,29 @@ seafile_api = SeafileAPI(login_name, pwd, server_url)
 seafile_api.auth()
 ```
 
+You can also get an authenticated SeafileAPI object by using an existing auth token.
+
+```
+from seafileapi import SeafileAPI
+server_url = "https://cloud.seafile.com/"
+auth_token = "your_auth_token"
+seafile_api = SeafileAPI.from_auth_token(auth_token, server_url)
+```
+
 ## Repo authentication
 
 There are two ways to get an authenticated repo object:
 
-#### By username and password
+#### By username and password (or auth token)
 
 ```python
 from seafileapi import SeafileAPI
 server_url = "https://cloud.seafile.com/"
 login_name = "example@examle.com"
 pwd = "password"
+#auth_token = "your_auth_token"
 seafile_api = SeafileAPI(login_name, pwd, server_url)
+# using SeafileAPI.from_auth_token(auth_token, server_url) is also supported
 seafile_api.auth()
 repo_id = "xxxxxxxxxxxx"
 repo = seafile_api.get_repo(repo_id) # return <Repo> object

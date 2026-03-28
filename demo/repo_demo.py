@@ -1,22 +1,43 @@
+import sys
+sys.path.append('..')
+
 from seafileapi import SeafileAPI, Repo
+from configparser import ConfigParser
 
 
+config = ConfigParser()
+config.read('test.ini')
 
-server_url = "http://127.0.0.1:8000/"
-login_name = "example@examle.com"
-pwd = "password"
+server_url = config.get('account', 'server_url')
+login_name = config.get('account', 'login_name')
+pwd = config.get('account', 'password')
+account_token = config.get('account', 'account_token')
+test_uuid = config.get('account', 'test_repo_uuid')
 
-api_token = '6de40d8456b06bdb4c9eabbf658175bdc4084050'
-
-
-seafile_api = SeafileAPI(login_name, pwd, server_url)
-seafile_api.auth()
+repo_token = config.get('repo', 'repo_token')
 
 
-user_repo = seafile_api.get_repo('2ce3ec78-d347-412c-b157-fce3c0d30ebb')
+# Auth with password
+print('Auth with password...')
+seafile_api_pwd = SeafileAPI(login_name, pwd, server_url)
+seafile_api_pwd.auth()
+user_repo_pwd = seafile_api_pwd.get_repo(test_uuid)
+print(user_repo_pwd.list_dir())
 
-api_repo = Repo(api_token, server_url)
+# Auth with account_token
+print('Auth with account_token...')
+seafile_api_token = SeafileAPI.from_auth_token(account_token, server_url)
+seafile_api_token.auth()
+user_repo_token = seafile_api_token.get_repo(test_uuid)
+print(user_repo_token.list_dir())
+
+# Using repo_token
+print('Using repo_token...')
+api_repo = Repo(repo_token, server_url)
 api_repo.auth()
+print(api_repo.list_dir())
+
+
 
 '''seafileAPI'''
 # print(seafile_api.list_repos())
@@ -46,8 +67,8 @@ api_repo.auth()
 # print(user_repo.create_file(""))
 # print(api_repo.create_file("q"))
 
-print(user_repo.rename_file('/d','d2'))
-print(api_repo.rename_file('','f2'))
+# print(user_repo.rename_file('/d','d2'))
+# print(api_repo.rename_file('','f2'))
 
 # print(user_repo.delete_file(''))
 # print(api_repo.delete_file('/'))
