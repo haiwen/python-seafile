@@ -1,10 +1,10 @@
 from setuptools import setup, find_packages
 
-__version__ = '0.1.1'
+__version__ = '2.0.2'
 
 
 setup(
-    name='seafileapi',
+    name='seafileapi2',
     version=__version__,
     license='BSD',
     description='Python client for Seafile Web API',
