@@ -1,6 +1,10 @@
+import mimetypes
 import os
 import json
+from datetime import timedelta
+import time
 import requests
+import hashlib
 
 from seafileapi.exceptions import ClientHttpError
 from seafileapi.utils import urljoin
@@ -14,6 +18,11 @@ def parse_headers(token, bearer=False):
     }
 
 
+def get_file_type_by_mimetypes(filename):
+    mime_type, _ = mimetypes.guess_type(filename)
+    return mime_type or 'application/octet-stream'
+
+
 def parse_response(response):
     if response.status_code >= 400:
         raise ConnectionError(response.status_code, response.text)
@@ -23,6 +32,22 @@ def parse_response(response):
             return data
         except Exception:
             pass
+
+
+def b2h(size):
+    if size < 1024:
+        return "{}B".format(size)
+    elif size < 1024 * 1024:
+        return "{:.2f}KB".format(size / 1024)
+    elif size < 1024 * 1024 * 1024:
+        return "{:.2f}MB".format(size / 1024 / 1024)
+    else:
+        return "{:.2f}GB".format(size / 1024 / 1024 / 1024)
+
+
+def cb_progress(monitor):
+    progress = (monitor.bytes_read / monitor.len) * 100
+    print("\rProgress：{:.2f}%({}/{})".format(progress, b2h(monitor.bytes_read), b2h(monitor.len)), end=" ")
 
 
 class Repo(object):
@@ -188,6 +213,76 @@ class Repo(object):
             return response.json()[0]
         else:
             raise Exception('upload file error')
+
+    def _repo_upload_link_url_from_web(self, parent_dir):
+        params = {'p': parent_dir, 'from': 'web'}
+        url = urljoin(self.server_url, '/api2/repos/{}/upload-link/'.format(self.repo_id))
+        response = requests.get(url, params=params, headers=self.headers, timeout=self.timeout)
+        return response.json()
+
+    def _get_file_upload_size(self, parent_dir, file_name):
+        params = {'parent_dir': parent_dir, 'file_name': file_name}
+        url = urljoin(self.server_url, '/api/v2.1/repos/{}/file-uploaded-bytes/'.format(self.repo_id))
+        response = requests.get(url, params=params, headers=self.headers, timeout=self.timeout)
+        return response.json()['uploadedBytes']
+
+    def upload_file_resumable(self, parent_dir, file_path, chunk_size=1024 * 1024 * 2,
+                              print_progress=True, timeout=None):
+        if timeout is None:
+            timeout = self.timeout
+        upload_link_url = self._repo_upload_link_url_from_web(parent_dir)
+        filename = os.path.basename(file_path)
+        mime_type = get_file_type_by_mimetypes(filename)
+        filesize = os.path.getsize(file_path)
+
+        if filesize == 0:
+            # support filesize = 0 upload
+            filesize = 1
+        already_uploaded_size = self._get_file_upload_size(parent_dir, filename)
+        if already_uploaded_size and print_progress:
+            print('{} is already uploaded {} '.format(filename, b2h(already_uploaded_size)))
+        md5 = hashlib.md5()
+        md5.update(file_path.encode())
+        md5.update(parent_dir.encode())
+        md5.update(str(filesize).encode())
+        total_chunks = (filesize + chunk_size - 1) // chunk_size
+        start_chunk = already_uploaded_size // chunk_size
+        t = time.time()
+        session = requests.Session()
+        data = {
+            "resumableTotalSize": str(filesize),
+            "resumableType": mime_type,
+            "resumableIdentifier": "{}{}".format(md5.hexdigest(), filename),
+            "resumableFilename": filename,
+            "resumableRelativePath": filename,
+            "resumableTotalChunks": total_chunks,
+            "parent_dir": parent_dir,
+        }
+        header = {'Content-Disposition': 'attachment; filename="{}"'.format(filename)}
+        with open(file_path, 'rb') as f:
+            for chunk_index in range(start_chunk, total_chunks):
+                start = chunk_index * chunk_size
+                f.seek(start)
+                end = min(start + chunk_size, filesize) - 1
+                chunk = f.read(chunk_size)
+                data["resumableChunkNumber"] = chunk_index + 1
+                data["resumableChunkSize"] = chunk_size
+                data["resumableCurrentChunkSize"] = len(chunk)
+                header['Content-Range'] = f'bytes {start}-{end}/{filesize}'
+                files = {'file': (filename, chunk, mime_type)}
+                response = session.post(upload_link_url, files=files, data=data, headers=header, timeout=timeout)
+                if response.status_code == 200:
+                    if print_progress:
+                        delta = timedelta(seconds=time.time() - t)
+                        print("\rProgress：{}/{} ({}/{}) use {}".format(
+                            chunk_index + 1, total_chunks, b2h(end), b2h(filesize), delta), end=" ")
+                    if chunk_index == total_chunks - 1:
+                        if print_progress:
+                            print()
+                        return response.json()[0]
+                else:
+                    raise Exception('upload file error')
+        raise Exception('upload file error')
 
     def download_file(self, file_path, save_path):
         url = self._repo_download_link_url()
